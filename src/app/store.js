@@ -1,8 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit';
-import counterReducer from '../features/counter/counterSlice';
+import workoutReducer from '../features/WorkoutManagement/workoutSlice';
 
 export const store = configureStore({
   reducer: {
-    counter: counterReducer,
+    workout: workoutReducer,
   },
 });
