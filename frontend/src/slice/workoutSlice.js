@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 export const workoutSlice = createSlice({
   name: 'workout',
   initialState: {
-    workouts: [],
+    workouts: ['Chest', 'Shoulder'],
   },
   reducers: {
     addWorkout: (state, action) => {
