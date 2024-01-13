@@ -8,9 +8,9 @@ const Home = () => {
   return (
     <React.Fragment>
       <Grid container>
-        <Grid item xs={8}>
+        <Grid item xs={12} md={8}>
           <Card className="material-card">
-            <CardContent className="workout-content" style={{display: 'flex', justifyContent: 'space-between'}}>
+            <CardContent className="workout-content" style={{ display: 'flex', justifyContent: 'space-between' }}>
               <div>
                 <Typography variant='h5' style={{ fontFamily: 'Poppins', color: '#424769' }}>
                   Hello, Vanshaj
@@ -24,7 +24,7 @@ const Home = () => {
           </Card>
           <Activity />
         </Grid>
-        <Grid item xs={4}>
+        <Grid item xs={12} md={4}>
           <WorkoutForm />
         </Grid>
       </Grid>
