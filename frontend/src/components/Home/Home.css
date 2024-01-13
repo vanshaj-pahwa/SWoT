@@ -1,0 +1,8 @@
+.material-card {
+    margin: 20px;
+}
+
+.workout-image {
+    max-width: 350px;
+    justify-content: flex-end;
+}
