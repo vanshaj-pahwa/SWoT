@@ -27,7 +27,7 @@ const Activity = () => {
           </Card>
         </Grid>
       </Grid>
-      <div className='details-button'><Button variant="outlined" style={{ color: '#2D3250', border: '2px solid', borderColor: '#2D3250', fontWeight: 'bold' }}>View Details</Button></div>
+      <div className='details-button'><Button variant="outlined" style={{ color: '#2D3250', border: '2px solid', borderColor: '#2D3250', fontWeight: 'bold', fontFamily: 'Poppins' }}>View Details</Button></div>
     </div>
   );
 }

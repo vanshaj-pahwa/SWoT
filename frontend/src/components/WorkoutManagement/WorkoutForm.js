@@ -154,7 +154,7 @@ const WorkoutForm = () => {
           ))}
         </Slider>
       </div>
-      <Button variant='contained' style={{ marginTop: '20px', backgroundColor: '#7077A1', fontFamily: 'Poppins' }}>ADD WORKOUT</Button>
+      {addedExercises.length > 0 && <Button variant='contained' style={{ marginTop: '20px', backgroundColor: '#7077A1', fontFamily: 'Poppins' }}>ADD WORKOUT</Button>}
     </div>
   );
 };
