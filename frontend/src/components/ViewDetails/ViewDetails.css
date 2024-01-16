@@ -1,0 +1,28 @@
+.calendar-wrapper {
+  display: flex;
+  align-items: center;
+  margin: 16px;
+}
+
+.calendarIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background-color: #7077a1;
+  border-radius: 50%;
+  padding: 6px;
+  margin-right: 8px;
+}
+
+.calendarDay{
+    margin-top: 0.2rem;
+    font-size: 14px;
+    color: #2D3250;
+}
+.calendarMonth {
+    font-size: 22px;
+    font-weight: 600;
+    color: #2D3250;
+}
