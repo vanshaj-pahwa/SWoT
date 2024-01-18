@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @Slf4j
 public class WorkoutService {
@@ -20,6 +22,15 @@ public class WorkoutService {
         Workout workout = Workout.builder().workoutType(workoutType).build();
         try{
             workoutRepository.save(workout);
+        } catch (Exception e){
+            log.info(e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public List<Workout> getAllWorkouts(){
+        try {
+            return workoutRepository.findAll();
         } catch (Exception e){
             log.info(e.getMessage());
             throw new RuntimeException(e.getMessage());
