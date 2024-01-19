@@ -1,16 +1,15 @@
 package com.workout.tracker.controllers;
 
 import com.workout.tracker.services.WorkoutService;
+
 import com.workout.tracker.utils.ResponseEntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@CrossOrigin
 public class WorkoutController {
 
     private WorkoutService workoutService;
@@ -25,14 +24,14 @@ public class WorkoutController {
 
         try {
             workoutService.addWorkout(workoutType);
-            return ResponseEntityUtils.createSuccessResponse("Workout saved successfully!");
+            return ResponseEntityUtils.createSuccessResponse("Workout saved successfully!","Operation Successful!");
         } catch (Exception e) {
-            return ResponseEntityUtils.createErrorResponse("Error creating data", HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntityUtils.createErrorResponse("Error creating data!");
         }
     }
 
     @GetMapping("/workouts")
     public ResponseEntity<?> getListOfWorkouts(){
-        return ResponseEntityUtils.createSuccessResponse(workoutService.getAllWorkouts());
+        return ResponseEntityUtils.createSuccessResponse(workoutService.getAllWorkouts(),"Successfully fetched records!");
     }
 }
