@@ -36,6 +36,7 @@ const SignUp = () => {
 
     if (!email.trim() || !emailRegex.test(email)) {
       setError("Please enter a valid email address.");
+      setLoading(false);
       return;
     }
 
@@ -43,6 +44,7 @@ const SignUp = () => {
       setError(
         "Password must be at least 8 characters long and contain at least one letter and one number."
       );
+      setLoading(false);
       return;
     }
 
