@@ -34,15 +34,15 @@ const Login = () => {
 
     if (!email.trim() && !password.trim()) {
       setError("Email and password are required.");
-      setLoading(false); // Set loading to false on error
+      setLoading(false);
       return;
     } else if (!password.trim()) {
       setError("Password is required.");
-      setLoading(false); // Set loading to false on error
+      setLoading(false); 
       return;
     } else if (!email.trim()) {
       setError("Email is required.");
-      setLoading(false); // Set loading to false on error
+      setLoading(false);
       return;
     }
 
