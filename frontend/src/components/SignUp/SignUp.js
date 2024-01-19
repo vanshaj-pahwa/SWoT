@@ -1,5 +1,9 @@
 import React, { useState } from "react";
 import Alert from "@mui/material/Alert";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { signupUser } from "../../slice/userSlice";
+import { selectToken, selectApiError } from "../../slice/userSlice";
 import {
   Card,
   CardContent,
@@ -8,21 +12,29 @@ import {
   Button,
   Grid,
   Link,
+  CircularProgress
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 
 const SignUp = () => {
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // Loading state
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const token = useSelector(selectToken);
+  const apiError = useSelector(selectApiError);
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
   const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     setError("");
+    setLoading(true);
 
-    if (!username.trim() || !emailRegex.test(username)) {
+    if (!email.trim() || !emailRegex.test(email)) {
       setError("Please enter a valid email address.");
       return;
     }
@@ -34,9 +46,25 @@ const SignUp = () => {
       return;
     }
 
-    console.log(
-      `Sign up attempt with username: ${username} and password: ${password}`
-    );
+    const userInfo = {
+      name: username,
+      email: email,
+      password: password
+    }
+
+    try {
+      await dispatch(signupUser(userInfo));
+
+      if (token) {
+        navigate("/home");
+      } else {
+        setError(apiError || "Signup failed. Please check your credentials.");
+      }
+    } catch (error) {
+      setError("An error occurred during signup.");
+    } finally {
+      setLoading(false); // Set loading to false when signup process completes
+    }
   };
 
   return (
@@ -51,14 +79,26 @@ const SignUp = () => {
             Sign up
           </Typography>
           <form>
-            <TextField
-              label="Email"
+          <TextField
+              label="Username"
               variant="outlined"
               fullWidth
               required
               margin="normal"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              InputProps={{
+                style: { color: "#7077A1", fontFamily: "Poppins" },
+              }}
+            />
+            <TextField
+              label="Email"
+              variant="outlined"
+              fullWidth
+              required
+              margin="normal"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               InputProps={{
                 style: { color: "#7077A1", fontFamily: "Poppins" },
               }}
@@ -95,8 +135,9 @@ const SignUp = () => {
                     fontFamily: "Poppins",
                     backgroundColor: "#2D3250",
                   }}
+                  disabled={loading} // Disable the button when loading
                 >
-                  Sign Up
+                  {loading ? <CircularProgress size={24} color="secondary" style={{color: 'white'}}/> : "Sign Up"}
                 </Button>
               </Grid>
               <Grid item>

@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import Alert from "@mui/material/Alert";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { loginUser } from "../../slice/userSlice";
+import { selectToken, selectApiError } from "../../slice/userSlice";
 
 import {
   Card,
@@ -10,33 +13,60 @@ import {
   Button,
   Grid,
   Link,
+  CircularProgress,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import "./Login.css";
 
 const Login = () => {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // Loading state
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const token = useSelector(selectToken);
+  const apiError = useSelector(selectApiError);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setError("");
-    if (!username.trim() && !password.trim()) {
+    setLoading(true); // Set loading to true when login process starts
+
+    if (!email.trim() && !password.trim()) {
       setError("Email and password are required.");
+      setLoading(false); // Set loading to false on error
       return;
     } else if (!password.trim()) {
       setError("Password is required.");
+      setLoading(false); // Set loading to false on error
       return;
-    } else if(!username.trim()) {
+    } else if (!email.trim()) {
       setError("Email is required.");
+      setLoading(false); // Set loading to false on error
       return;
     }
-    
-    navigate('/home')
-    console.log(
-      `Login attempt with username: ${username} and password: ${password}`
-    );
+
+    const credentials = {
+      email,
+      password,
+    };
+
+    try {
+      await dispatch(loginUser(credentials));
+
+      // Simulate a delay for 2 seconds
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      if (token) {
+        navigate("/home");
+      } else {
+        setError(apiError || "Login failed. Please check your credentials.");
+      }
+    } catch (error) {
+      setError("An error occurred during login.");
+    } finally {
+      setLoading(false); // Set loading to false when login process completes
+    }
   };
 
   return (
@@ -57,8 +87,8 @@ const Login = () => {
               fullWidth
               required
               margin="normal"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               InputProps={{
                 style: { color: "#7077A1", fontFamily: "Poppins" },
               }}
@@ -95,8 +125,9 @@ const Login = () => {
                     fontFamily: "Poppins",
                     backgroundColor: "#2D3250",
                   }}
+                  disabled={loading} // Disable the button when loading
                 >
-                  Login
+                  {loading ? <CircularProgress size={24} color="secondary" style={{color: 'white'}}/> : "Login"}
                 </Button>
               </Grid>
               <Grid item>

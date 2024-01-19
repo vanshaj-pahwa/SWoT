@@ -86,13 +86,13 @@ const WorkoutForm = () => {
 
   const handleDeleteWorkout = (workout) => {
     dispatch(deleteWorkout(workout));
-    // setSelectedWorkout("");
+
   };
 
   const handleSuccessAlert = () => {
     setShowSuccessAlert(true);
 
-    // Automatically disable the alert after 3000 milliseconds (3 seconds)
+    // Automatically disable the alert after 4000 milliseconds (4 seconds)
     setTimeout(() => {
       setShowSuccessAlert(false);
     }, 4000);
@@ -185,7 +185,7 @@ const WorkoutForm = () => {
         )}
       </FormControl>
 
-      {selectedWorkout !== "addYours" && (
+      {selectedWorkout && selectedWorkout !== "addYours" && (
         <div>
           <TextField
             label="Exercise Name"
@@ -279,6 +279,7 @@ const WorkoutForm = () => {
                             color: "#7077A1",
                             fontFamily: "Poppins",
                             fontSize: "12px",
+                            height: '1.4375em'
                           },
                         }}
                         className="weight-input"
@@ -309,6 +310,7 @@ const WorkoutForm = () => {
                             color: "#7077A1",
                             fontFamily: "Poppins",
                             fontSize: "12px",
+                            height: '1.4375em'
                           },
                         }}
                         className="weight-input"

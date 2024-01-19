@@ -5,6 +5,7 @@ import Navbar from './components/Navbar/Navbar';
 import Home from './components/Home/Home';
 import Login from './components/Login/Login';
 import SignUp from './components/SignUp/SignUp';
+import ViewDetails from './components/ViewDetails/ViewDetails';
 
 function App() {
   const isLoginOrSignup = () => {
@@ -22,6 +23,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path='/signup' element={<SignUp />} />
             <Route path="/home" element={<Home />} />
+            <Route path='/details' element={<ViewDetails />} />
           </Routes>
         </header>
       </div>
