@@ -26,3 +26,21 @@
     font-weight: 600;
     color: #2D3250;
 }
+.slick-slider.slick-initialized {
+    width: 97vw;
+  }
+  .slick-arrow.slick-prev {
+    background: #2D3250;
+    color: white;
+    border-radius: 8px;
+  }
+  .slick-arrow.slick-next {
+    background: #2D3250;
+    color: white;
+    border-radius: 8px;
+  }
+  @media (max-width: 500px) {
+    .slick-arrow.slick-next {
+      right: 10px;
+    }
+  }
