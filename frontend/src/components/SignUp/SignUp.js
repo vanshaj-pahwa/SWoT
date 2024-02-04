@@ -57,15 +57,6 @@ const SignUp = () => {
     try {
       await dispatch(signupUser(userInfo));
 
-      await new Promise((resolve) => {
-        const interval = setInterval(() => {
-          if (token) {
-            clearInterval(interval);
-            resolve();
-          }
-        }, 100);
-      });
-
       if (token || localStorage.getItem('token')) {
         navigate("/home");
       } else {

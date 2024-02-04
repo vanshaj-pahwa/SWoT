@@ -40,60 +40,70 @@ export const userSlice = createSlice({
   },
 });
 
-export const {
-  loginSuccess,
-  loginFailure,
-  signupSuccess,
-  signupFailure,
-} = userSlice.actions;
+export const { loginSuccess, loginFailure, signupSuccess, signupFailure } =
+  userSlice.actions;
 
 // Async thunk for user login
 export const loginUser = (credentials) => async (dispatch) => {
-  try {
-    const response = await axios.post(SIGN_IN_URL, credentials);
-    if (response.status === 200) {
-      const { token, userName, emailId } = response.data.body;
-      dispatch(loginSuccess({ token, userName, emailId }));
-      localStorage.setItem("token", token);
-      localStorage.setItem("userName", userName);
-      localStorage.setItem("emailId", emailId);
-    } else {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const response = await axios.post(SIGN_IN_URL, credentials);
+      if (response.status === 200) {
+        const { token, userName, emailId } = response.data.body;
+        dispatch(loginSuccess({ token, userName, emailId }));
+        localStorage.setItem("token", token);
+        localStorage.setItem("userName", userName);
+        localStorage.setItem("emailId", emailId);
+        resolve();
+      } else {
+        dispatch(
+          loginFailure(
+            response.data.message || "An error occurred during login."
+          )
+        );
+        localStorage.clear();
+        reject();
+      }
+    } catch (error) {
       dispatch(
-        loginFailure(response.data.message || "An error occurred during login.")
+        loginFailure(error.message || "An error occurred during login.")
       );
       localStorage.clear();
+      reject();
     }
-  } catch (error) {
-    dispatch(loginFailure(error.message || "An error occurred during login."));
-    localStorage.clear();
-  }
+  });
 };
 
 // Async thunk for user signup
 export const signupUser = (userInfo) => async (dispatch) => {
-  try {
-    const response = await axios.post(SIGN_UP_URL, userInfo);
+  return new Promise(async (resolve, reject) => {
+    try {
+      const response = await axios.post(SIGN_UP_URL, userInfo);
 
-    if (response.data.status === "Success") {
-      const { token, userName, emailId } = response.data.body;
-      dispatch(signupSuccess({ token, userName, emailId }));
-      localStorage.setItem("token", token);
-      localStorage.setItem("userName", userName);
-      localStorage.setItem("emailId", emailId);
-    } else {
+      if (response.data.status === "Success") {
+        const { token, userName, emailId } = response.data.body;
+        dispatch(signupSuccess({ token, userName, emailId }));
+        localStorage.setItem("token", token);
+        localStorage.setItem("userName", userName);
+        localStorage.setItem("emailId", emailId);
+        resolve();
+      } else {
+        dispatch(
+          signupFailure(
+            response.data.message || "An error occurred during signup."
+          )
+        );
+        localStorage.clear();
+        reject();
+      }
+    } catch (error) {
       dispatch(
-        signupFailure(
-          response.data.message || "An error occurred during signup."
-        )
+        signupFailure(error.message || "An error occurred during signup.")
       );
       localStorage.clear();
+      reject();
     }
-  } catch (error) {
-    dispatch(
-      signupFailure(error.message || "An error occurred during signup.")
-    );
-    localStorage.clear();
-  }
+  });
 };
 
 export const selectToken = (state) => state.user.token;
