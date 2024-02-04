@@ -1,7 +1,10 @@
+.view-details {
+  margin: 0 1rem 0 1rem;
+}
 .calendar-wrapper {
   display: flex;
   align-items: center;
-  margin: 16px;
+  margin: 16px 0 16px 0;
 }
 
 .calendarIcon {
@@ -16,31 +19,32 @@
   margin-right: 8px;
 }
 
-.calendarDay{
-    margin-top: 0.2rem;
-    font-size: 14px;
-    color: #2D3250;
+.calendarDay {
+  margin-top: 0.2rem;
+  font-size: 14px;
+  color: #2d3250;
 }
 .calendarMonth {
-    font-size: 22px;
-    font-weight: 600;
-    color: #2D3250;
+  font-size: 22px;
+  font-weight: 600;
+  color: #2d3250;
 }
-.slick-slider.slick-initialized {
-    width: 97vw;
+.view-details .slick-slider.slick-initialized {
+  width: 97vw;
+}
+.view-details .slick-arrow.slick-prev {
+  background: #2d3250;
+  color: white;
+  border-radius: 8px;
+  margin-left: 12px;
+}
+.view-details .slick-arrow.slick-next {
+  background: #2d3250;
+  color: white;
+  border-radius: 8px;
+}
+@media (max-width: 500px) {
+  .view-details .slick-arrow.slick-next {
+    right: 10px;
   }
-  .slick-arrow.slick-prev {
-    background: #2D3250;
-    color: white;
-    border-radius: 8px;
-  }
-  .slick-arrow.slick-next {
-    background: #2D3250;
-    color: white;
-    border-radius: 8px;
-  }
-  @media (max-width: 500px) {
-    .slick-arrow.slick-next {
-      right: 10px;
-    }
-  }
+}

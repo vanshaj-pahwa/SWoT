@@ -213,7 +213,7 @@ const WorkoutForm = () => {
         </div>
       )}
 
-      <div style={{ marginTop: "20px" }}>
+      <div className="addedExercises" style={{ marginTop: "20px" }}>
         <Slider {...sliderSettings}>
           {addedExercises.map((item, exerciseIndex) => (
             <Card key={exerciseIndex}>

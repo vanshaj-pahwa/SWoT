@@ -3,17 +3,20 @@ import WorkoutForm from '../WorkoutManagement/WorkoutForm';
 import { Card, CardContent, Typography, Grid } from '@mui/material';
 import './Home.css';
 import Activity from '../Activity/Activity';
+import Navbar from '../Navbar/Navbar';
 
 const Home = () => {
+  const userName = localStorage.getItem("userName");
   return (
     <React.Fragment>
+      <Navbar />
       <Grid container>
         <Grid item xs={12} md={8}>
           <Card className="material-card">
             <CardContent className="workout-content" style={{ display: 'flex', justifyContent: 'space-between' }}>
               <div>
                 <Typography variant='h5' style={{ fontFamily: 'Poppins', color: '#424769' }}>
-                  Hello, Vanshaj
+                  Hello, {userName}
                 </Typography>
                 <Typography variant='h4' style={{ fontFamily: 'Poppins', fontWeight: 'bold', color: '#2D3250' }}>
                   Let's work out
