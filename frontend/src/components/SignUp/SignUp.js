@@ -21,7 +21,7 @@ const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // Loading state
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const token = useSelector(selectToken);
@@ -33,7 +33,7 @@ const SignUp = () => {
   const handleSignUp = async () => {
     setError("");
     setLoading(true);
-
+    
     if (!email.trim() || !emailRegex.test(email)) {
       setError("Please enter a valid email address.");
       setLoading(false);
@@ -57,7 +57,16 @@ const SignUp = () => {
     try {
       await dispatch(signupUser(userInfo));
 
-      if (token) {
+      await new Promise((resolve) => {
+        const interval = setInterval(() => {
+          if (token) {
+            clearInterval(interval);
+            resolve();
+          }
+        }, 100);
+      });
+
+      if (token || localStorage.getItem('token')) {
         navigate("/home");
       } else {
         setError(apiError || "Signup failed. Please check your credentials.");
@@ -65,7 +74,7 @@ const SignUp = () => {
     } catch (error) {
       setError("An error occurred during signup.");
     } finally {
-      setLoading(false); // Set loading to false when signup process completes
+      setLoading(false);
     }
   };
 

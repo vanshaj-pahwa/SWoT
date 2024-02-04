@@ -7,9 +7,7 @@ const Navbar = () => {
   const emailId = localStorage.getItem("emailId");
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userName");
-    localStorage.removeItem("emailId");
+    localStorage.clear();
     navigate("/login");
   };
 

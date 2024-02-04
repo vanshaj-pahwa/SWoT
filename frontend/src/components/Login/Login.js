@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Alert from "@mui/material/Alert";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { loginUser, selectEmailId, selectUserName } from "../../slice/userSlice";
+import { loginUser } from "../../slice/userSlice";
 import { selectToken, selectApiError } from "../../slice/userSlice";
 
 import {
@@ -26,8 +26,6 @@ const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const token = useSelector(selectToken);
-  const userName = useSelector(selectUserName);
-  const emailId = useSelector(selectEmailId);
   const apiError = useSelector(selectApiError);
 
   const handleLogin = async () => {
@@ -40,7 +38,7 @@ const Login = () => {
       return;
     } else if (!password.trim()) {
       setError("Password is required.");
-      setLoading(false); 
+      setLoading(false);
       return;
     } else if (!email.trim()) {
       setError("Email is required.");
@@ -65,9 +63,7 @@ const Login = () => {
         }, 100);
       });
 
-      localStorage.setItem("token", token);
-      
-      if (token) {
+      if (token || localStorage.getItem("token")) {
         navigate("/home");
       } else {
         setError(apiError || "Login failed. Please check your credentials.");
@@ -78,14 +74,6 @@ const Login = () => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (token) {
-      localStorage.setItem("token", token);
-      localStorage.setItem("userName", userName);
-      localStorage.setItem("emailId", emailId);
-    }
-  }, [token, userName, emailId]);
 
   return (
     <div className="login-container">
@@ -145,7 +133,15 @@ const Login = () => {
                   }}
                   disabled={loading}
                 >
-                  {loading ? <CircularProgress size={24} color="secondary" style={{color: 'white'}}/> : "Login"}
+                  {loading ? (
+                    <CircularProgress
+                      size={24}
+                      color="secondary"
+                      style={{ color: "white" }}
+                    />
+                  ) : (
+                    "Login"
+                  )}
                 </Button>
               </Grid>
               <Grid item>

@@ -54,13 +54,18 @@ export const loginUser = (credentials) => async (dispatch) => {
     if (response.status === 200) {
       const { token, userName, emailId } = response.data.body;
       dispatch(loginSuccess({ token, userName, emailId }));
+      localStorage.setItem("token", token);
+      localStorage.setItem("userName", userName);
+      localStorage.setItem("emailId", emailId);
     } else {
       dispatch(
         loginFailure(response.data.message || "An error occurred during login.")
       );
+      localStorage.clear();
     }
   } catch (error) {
     dispatch(loginFailure(error.message || "An error occurred during login."));
+    localStorage.clear();
   }
 };
 
@@ -72,17 +77,22 @@ export const signupUser = (userInfo) => async (dispatch) => {
     if (response.data.status === "Success") {
       const { token, userName, emailId } = response.data.body;
       dispatch(signupSuccess({ token, userName, emailId }));
+      localStorage.setItem("token", token);
+      localStorage.setItem("userName", userName);
+      localStorage.setItem("emailId", emailId);
     } else {
       dispatch(
         signupFailure(
           response.data.message || "An error occurred during signup."
         )
       );
+      localStorage.clear();
     }
   } catch (error) {
     dispatch(
       signupFailure(error.message || "An error occurred during signup.")
     );
+    localStorage.clear();
   }
 };
 
