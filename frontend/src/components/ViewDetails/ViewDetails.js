@@ -10,14 +10,17 @@ import {
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import "./ViewDetails.css";
 import WorkoutInfo from "./WorkoutInfo";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Navbar from "../Navbar/Navbar";
+import { useNavigate } from "react-router-dom";
 
 const ViewDetails = () => {
+  const navigate = useNavigate();
   const currentDate = new Date();
   const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -53,22 +56,32 @@ const ViewDetails = () => {
     setSelectedDate(index);
   };
 
+  const handleBack = () => {
+    navigate("/home");
+  };
+
   return (
     <React.Fragment>
       <Navbar />
       <div className="view-details">
-        <div className="calendar-wrapper">
-          <div className="calendarIcon">
-            <CalendarMonthIcon style={{ color: "white" }} />
+        <div className="header">
+          <div className="back-to-home" onClick={handleBack}>
+            <KeyboardBackspaceIcon style={{ color: "#2d3250" }} />
+            <span>Back to Home</span>
           </div>
-          <div>
-            <div className="calendarDay">
-              {currentDate.toLocaleDateString("en-US", { weekday: "long" })}
+          <div className="calendar-wrapper">
+            <div className="calendarIcon">
+              <CalendarMonthIcon style={{ color: "white" }} />
             </div>
-            <div className="calendarMonth">{`${currentDate.getDate()} ${currentDate.toLocaleString(
-              "default",
-              { month: "long" }
-            )}`}</div>
+            <div>
+              <div className="calendarDay">
+                {currentDate.toLocaleDateString("en-US", { weekday: "long" })}
+              </div>
+              <div className="calendarMonth">{`${currentDate.getDate()} ${currentDate.toLocaleString(
+                "default",
+                { month: "long" }
+              )}`}</div>
+            </div>
           </div>
         </div>
         <Slider {...settings}>

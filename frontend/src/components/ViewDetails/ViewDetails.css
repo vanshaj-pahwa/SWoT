@@ -1,6 +1,26 @@
 .view-details {
   margin: 0 1rem 0 1rem;
 }
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+}
+
+.back-to-home {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.back-to-home span {
+  color: #2d3250;
+  font-family: "Poppins";
+  font-size: 14px;
+  margin-left: 0.2rem;
+}
+
 .calendar-wrapper {
   display: flex;
   align-items: center;
@@ -21,11 +41,11 @@
 
 .calendarDay {
   margin-top: 0.2rem;
-  font-size: 14px;
+  font-size: 13px;
   color: #2d3250;
 }
 .calendarMonth {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 600;
   color: #2d3250;
 }
