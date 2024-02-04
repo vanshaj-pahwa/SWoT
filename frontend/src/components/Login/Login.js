@@ -30,7 +30,7 @@ const Login = () => {
 
   const handleLogin = async () => {
     setError("");
-    setLoading(true); // Set loading to true when login process starts
+    setLoading(true);
 
     if (!email.trim() && !password.trim()) {
       setError("Email and password are required.");
@@ -38,7 +38,7 @@ const Login = () => {
       return;
     } else if (!password.trim()) {
       setError("Password is required.");
-      setLoading(false); 
+      setLoading(false);
       return;
     } else if (!email.trim()) {
       setError("Email is required.");
@@ -54,10 +54,16 @@ const Login = () => {
     try {
       await dispatch(loginUser(credentials));
 
-      // Simulate a delay for 2 seconds
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => {
+        const interval = setInterval(() => {
+          if (token) {
+            clearInterval(interval);
+            resolve();
+          }
+        }, 100);
+      });
 
-      if (token) {
+      if (token || localStorage.getItem("token")) {
         navigate("/home");
       } else {
         setError(apiError || "Login failed. Please check your credentials.");
@@ -65,7 +71,7 @@ const Login = () => {
     } catch (error) {
       setError("An error occurred during login.");
     } finally {
-      setLoading(false); // Set loading to false when login process completes
+      setLoading(false);
     }
   };
 
@@ -125,9 +131,17 @@ const Login = () => {
                     fontFamily: "Poppins",
                     backgroundColor: "#2D3250",
                   }}
-                  disabled={loading} // Disable the button when loading
+                  disabled={loading}
                 >
-                  {loading ? <CircularProgress size={24} color="secondary" style={{color: 'white'}}/> : "Login"}
+                  {loading ? (
+                    <CircularProgress
+                      size={24}
+                      color="secondary"
+                      style={{ color: "white" }}
+                    />
+                  ) : (
+                    "Login"
+                  )}
                 </Button>
               </Grid>
               <Grid item>

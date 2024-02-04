@@ -86,7 +86,6 @@ const WorkoutForm = () => {
 
   const handleDeleteWorkout = (workout) => {
     dispatch(deleteWorkout(workout));
-
   };
 
   const handleSuccessAlert = () => {
@@ -139,7 +138,7 @@ const WorkoutForm = () => {
               style={{ color: "#7077A1", fontFamily: "Poppins" }}
             >
               {workout}
-              {isDropdownOpen && selectedWorkout !== workout && (
+              {isDropdownOpen && selectedWorkout !== workout && !['Chest', 'Shoulder'].includes(workout) && (
                 <DeleteIcon
                   style={{ marginLeft: "auto", cursor: "pointer" }}
                   onClick={() => handleDeleteWorkout(workout)}
@@ -213,7 +212,7 @@ const WorkoutForm = () => {
         </div>
       )}
 
-      <div style={{ marginTop: "20px" }}>
+      <div className="addedExercises" style={{ marginTop: "20px" }}>
         <Slider {...sliderSettings}>
           {addedExercises.map((item, exerciseIndex) => (
             <Card key={exerciseIndex}>
