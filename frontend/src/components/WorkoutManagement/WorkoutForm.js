@@ -1,9 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  addWorkout,
+  addCustomWorkout,
   deleteWorkout,
-  selectWorkout,
+  fetchCustomWorkouts,
+  fetchWorkouts,
+  selectCustomWorkouts,
+  selectWorkouts,
+  selectError,
+  setError
 } from "../../slice/workoutSlice";
 import {
   Typography,
@@ -26,13 +31,22 @@ import "./WorkoutForm.css";
 
 const WorkoutForm = () => {
   const dispatch = useDispatch();
-  const workouts = useSelector(selectWorkout);
+  const workouts = useSelector(selectWorkouts);
+  const customWorkouts = useSelector(selectCustomWorkouts);
+  const error = useSelector(selectError);
   const [selectedWorkout, setSelectedWorkout] = useState("");
   const [exerciseName, setExerciseName] = useState("");
   const [addedExercises, setAddedExercises] = useState([]);
   const [customWorkout, setCustomWorkout] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+
+  useEffect(() => {
+    dispatch(fetchWorkouts());
+    dispatch(fetchCustomWorkouts(1));
+  }, [dispatch]);
+
+  console.log(customWorkouts); // remove this
 
   const handleAddExercise = () => {
     if (selectedWorkout.trim() !== "" && exerciseName.trim() !== "") {
@@ -77,7 +91,7 @@ const WorkoutForm = () => {
 
   const handleAddCustomWorkout = () => {
     if (customWorkout.trim() !== "" && !workouts.includes(customWorkout)) {
-      dispatch(addWorkout(customWorkout));
+      dispatch(addCustomWorkout(1, customWorkout));
       setSelectedWorkout(customWorkout);
       setCustomWorkout("");
       handleSuccessAlert();
@@ -131,21 +145,35 @@ const WorkoutForm = () => {
           label="Workout"
           style={{ marginTop: "20px", color: "#7077A1", fontFamily: "Poppins" }}
         >
-          {workouts.map((workout, index) => (
+          {/* Pre-added workouts */}
+          {workouts.map((workout) => (
             <MenuItem
-              key={index}
+              key={workout.workoutId}
+              value={workout.workoutType}
+              style={{ color: "#7077A1", fontFamily: "Poppins" }}
+            >
+              {workout.workoutType}
+            </MenuItem>
+          ))}
+
+          {/* Custom workouts */}
+          {Array.isArray(customWorkouts) && customWorkouts.map((workout) => (
+            <MenuItem
+              key={workout}
               value={workout}
               style={{ color: "#7077A1", fontFamily: "Poppins" }}
             >
               {workout}
-              {isDropdownOpen && selectedWorkout !== workout && !['Chest', 'Shoulder'].includes(workout) && (
-                <DeleteIcon
-                  style={{ marginLeft: "auto", cursor: "pointer" }}
-                  onClick={() => handleDeleteWorkout(workout)}
-                />
-              )}
+              {isDropdownOpen &&
+                selectedWorkout !== workout && (
+                  <DeleteIcon
+                    style={{ marginLeft: "auto", cursor: "pointer" }}
+                    onClick={() => handleDeleteWorkout(workout)}
+                  />
+                )}
             </MenuItem>
           ))}
+
           {/* Add Yours option */}
           <MenuItem
             value="addYours"
@@ -278,7 +306,7 @@ const WorkoutForm = () => {
                             color: "#7077A1",
                             fontFamily: "Poppins",
                             fontSize: "12px",
-                            height: '1.4375em'
+                            height: "1.4375em",
                           },
                         }}
                         className="weight-input"
@@ -309,7 +337,7 @@ const WorkoutForm = () => {
                             color: "#7077A1",
                             fontFamily: "Poppins",
                             fontSize: "12px",
-                            height: '1.4375em'
+                            height: "1.4375em",
                           },
                         }}
                         className="weight-input"
@@ -366,8 +394,21 @@ const WorkoutForm = () => {
       )}
 
       {showSuccessAlert && (
-        <Alert style={{marginTop: '1rem'}} severity="success" onClose={() => setShowSuccessAlert(false)}>
+        <Alert
+          style={{ marginTop: "1rem" }}
+          severity="success"
+          onClose={() => setShowSuccessAlert(false)}
+        >
           Your custom workout added successfully!
+        </Alert>
+      )}
+      {error && (
+        <Alert
+          style={{ marginTop: "1rem" }}
+          severity="error"
+          onClose={() => dispatch(setError(null))}
+        >
+          {error}
         </Alert>
       )}
     </div>

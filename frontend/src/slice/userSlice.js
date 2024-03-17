@@ -6,33 +6,38 @@ export const userSlice = createSlice({
   name: "user",
   initialState: {
     token: null,
+    userId: null,
     userName: null,
     emailId: null,
     error: null,
   },
   reducers: {
     loginSuccess: (state, action) => {
-      const { token, userName, emailId } = action.payload;
+      const { token, userId, userName, emailId } = action.payload;
       state.token = token;
+      state.userId = userId;
       state.userName = userName;
       state.emailId = emailId;
       state.error = null;
     },
     loginFailure: (state, action) => {
       state.token = null;
+      state.userId = null;
       state.userName = null;
       state.emailId = null;
       state.error = action.payload;
     },
     signupSuccess: (state, action) => {
-      const { token, userName, emailId } = action.payload;
+      const { token, userId, userName, emailId } = action.payload;
       state.token = token;
+      state.userId = userId;
       state.userName = userName;
       state.emailId = emailId;
       state.error = null;
     },
     signupFailure: (state, action) => {
       state.token = null;
+      state.userId = null;
       state.userName = null;
       state.emailId = null;
       state.error = action.payload;
@@ -49,9 +54,10 @@ export const loginUser = (credentials) => async (dispatch) => {
     try {
       const response = await axios.post(SIGN_IN_URL, credentials);
       if (response.status === 200) {
-        const { token, userName, emailId } = response.data.body;
-        dispatch(loginSuccess({ token, userName, emailId }));
+        const { token, userId, userName, emailId } = response.data.body;
+        dispatch(loginSuccess({ token, userId, userName, emailId }));
         localStorage.setItem("token", token);
+        localStorage.setItem("userId", userId);
         localStorage.setItem("userName", userName);
         localStorage.setItem("emailId", emailId);
         resolve();
@@ -81,8 +87,8 @@ export const signupUser = (userInfo) => async (dispatch) => {
       const response = await axios.post(SIGN_UP_URL, userInfo);
 
       if (response.data.status === "Success") {
-        const { token, userName, emailId } = response.data.body;
-        dispatch(signupSuccess({ token, userName, emailId }));
+        const { token, userId, userName, emailId } = response.data.body;
+        dispatch(signupSuccess({ token, userId, userName, emailId }));
         localStorage.setItem("token", token);
         localStorage.setItem("userName", userName);
         localStorage.setItem("emailId", emailId);
