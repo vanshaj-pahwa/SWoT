@@ -125,7 +125,7 @@ const WorkoutForm = () => {
         variant="h6"
         style={{ fontFamily: "Poppins", color: "#424769" }}
       >
-        Select your Workout
+        Select Today's Workout
       </Typography>
 
       <FormControl fullWidth>

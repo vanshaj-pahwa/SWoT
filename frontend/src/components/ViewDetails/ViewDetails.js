@@ -144,13 +144,17 @@ const ViewDetails = () => {
           You Performed
         </Typography>
 
-        <Grid container spacing={1}>
+        {workoutDataPerDate[selectedDate] ? <Grid container spacing={1}>
           {workoutDataPerDate[selectedDate].map((workout, idx) => (
             <Grid item key={idx} xs={12} sm={6} md={3}>
               <WorkoutInfo workoutData={workout} />
             </Grid>
-          ))}
-        </Grid>
+          ))
+        }
+        </Grid> : <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <img src='./no-data-found-icon.jpg' alt="No data found!" style={{ width: '150px', height: '150px' }} />
+          <Typography style={{ marginLeft: "10px", fontFamily: "Poppins", color: "#424769" }}>No data found!</Typography>
+        </div>}
       </div>
     </React.Fragment>
   );
