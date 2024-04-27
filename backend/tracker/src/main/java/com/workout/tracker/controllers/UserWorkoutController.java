@@ -20,8 +20,9 @@ public class UserWorkoutController {
     public ResponseEntity addCustomWorkout(@RequestParam int userId, @RequestParam String workoutName){
         try {
             int workoutId = userWorkoutService.addUserWorkout(userId, workoutName);
-            Map<String, Integer> responseMap = new HashMap<>();
+            Map<String, Object> responseMap = new HashMap<>();
             responseMap.put("userWorkoutId", workoutId);
+            responseMap.put("workoutName", workoutName);
             return ResponseEntityUtils.createSuccessResponse(responseMap,"Custom Workout Added Successfully!");
         }
         catch (Exception e){
