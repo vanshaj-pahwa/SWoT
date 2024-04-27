@@ -146,7 +146,6 @@ export const deleteCustomWorkout = (userWorkoutId) => async (dispatch) => {
 
     if (response.data.status === "Success") {
       dispatch(deleteCustomWorkoutSuccess(userWorkoutId));
-      console.log(response.data)
     } else {
       dispatch(setError("Failed to delete custom workout."));
     }

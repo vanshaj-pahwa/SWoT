@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addCustomWorkout,
-  deleteWorkout,
   fetchCustomWorkouts,
   fetchWorkouts,
   selectCustomWorkouts,
@@ -41,13 +40,14 @@ const WorkoutForm = () => {
   const [customWorkout, setCustomWorkout] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
 
   const userId = localStorage.getItem("userId");
 
   useEffect(() => {
     dispatch(fetchWorkouts());
     dispatch(fetchCustomWorkouts(userId));
-  }, [dispatch]);
+  }, [dispatch, userId]);
 
   const handleAddExercise = () => {
     if (selectedWorkout.trim() !== "" && exerciseName.trim() !== "") {
@@ -93,17 +93,19 @@ const WorkoutForm = () => {
   const handleAddCustomWorkout = () => {
     if (customWorkout.trim() !== "" && !workouts.includes(customWorkout)) {
       dispatch(addCustomWorkout(userId, customWorkout));
-      setSelectedWorkout(customWorkout.workoutName);
+      setSelectedWorkout(customWorkout);
       setCustomWorkout("");
-      handleSuccessAlert();
+      handleSuccessAlert("Your custom workout added successfully!");
     }
   };
 
   const handleDeleteWorkout = (userWorkoutId) => {
-    dispatch(deleteCustomWorkout(userWorkoutId))
+    dispatch(deleteCustomWorkout(userWorkoutId));
+    handleSuccessAlert("Your custom workout deleted successfully!");
   };
 
-  const handleSuccessAlert = () => {
+  const handleSuccessAlert = (message) => {
+    setAlertMessage(message);
     setShowSuccessAlert(true);
 
     // Automatically disable the alert after 4000 milliseconds (4 seconds)
@@ -400,7 +402,7 @@ const WorkoutForm = () => {
           severity="success"
           onClose={() => setShowSuccessAlert(false)}
         >
-          Your custom workout added successfully!
+          {alertMessage}
         </Alert>
       )}
       {error && (
