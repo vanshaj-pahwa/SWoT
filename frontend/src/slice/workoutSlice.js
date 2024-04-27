@@ -1,9 +1,14 @@
-import { createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { ADD_CUSTOM_WORKOUT, GET_CUSTOM_WORKOUTS, GET_WORKOUTS } from '../constants/constants';
+import { createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
+import {
+  ADD_CUSTOM_WORKOUT,
+  GET_CUSTOM_WORKOUTS,
+  GET_WORKOUTS,
+  DELETE_CUSTOM_WORKOUT,
+} from "../constants/constants";
 
 export const workoutSlice = createSlice({
-  name: 'workout',
+  name: "workout",
   initialState: {
     workouts: [],
     customWorkouts: [],
@@ -16,6 +21,11 @@ export const workoutSlice = createSlice({
     },
     deleteWorkout: (state, action) => {
       state.workouts = state.workouts.filter((workout) => workout !== action.payload);
+    },
+    deleteCustomWorkoutSuccess: (state, action) => {
+      state.customWorkouts = state.customWorkouts.filter(
+        (workout) => workout.userWorkoutId !== action.payload
+      );
     },
     setWorkouts: (state, action) => {
       state.workouts = action.payload;
@@ -35,12 +45,22 @@ export const workoutSlice = createSlice({
   },
 });
 
-export const { addCustomWorkoutSuccess, deleteWorkout, setError, setLoading, setWorkouts, setCustomWorkouts } = workoutSlice.actions;
+export const {
+  addCustomWorkoutSuccess,
+  deleteCustomWorkoutSuccess,
+  setError,
+  setLoading,
+  setWorkouts,
+  setCustomWorkouts,
+  setUserWorkoutId,
+  deleteWorkout
+} = workoutSlice.actions;
 
 export const selectWorkouts = (state) => state.workout.workouts;
 export const selectLoading = (state) => state.workout.loading;
 export const selectError = (state) => state.workout.error;
 export const selectCustomWorkouts = (state) => state.workout.customWorkouts;
+export const selectUserWorkoutId = (state) => state.workout.userWorkoutId;
 
 /* Fetch pre-added workouts */
 export const fetchWorkouts = () => async (dispatch) => {
@@ -54,13 +74,13 @@ export const fetchWorkouts = () => async (dispatch) => {
       },
     });
 
-    if (response.data.status === 'Success') {
+    if (response.data.status === "Success") {
       dispatch(setWorkouts(response.data.body));
     } else {
-      dispatch(setError('Failed to fetch workouts.'));
+      dispatch(setError("Failed to fetch workouts."));
     }
   } catch (error) {
-    dispatch(setError('An error occurred while fetching workouts.'));
+    dispatch(setError("An error occurred while fetching workouts."));
   }
 };
 
@@ -77,13 +97,13 @@ export const fetchCustomWorkouts = (userId) => async (dispatch) => {
       },
     });
 
-    if (response.data.status === 'Success') {
+    if (response.data.status === "Success") {
       dispatch(setCustomWorkouts(response.data.body));
     } else {
-      dispatch(setError('Failed to fetch workouts.'));
+      dispatch(setError("Failed to fetch workouts."));
     }
   } catch (error) {
-    dispatch(setError('An error occurred while fetching workouts.'));
+    dispatch(setError("An error occurred while fetching workouts."));
   }
 };
 
@@ -101,13 +121,37 @@ export const addCustomWorkout = (userId, workoutName) => async (dispatch) => {
       },
     });
 
-    if (response.data.status === 'Success') {
-      dispatch(addCustomWorkoutSuccess(workoutName));
+    if (response.data.status === "Success") {
+      dispatch(addCustomWorkoutSuccess(response.data.body));
     } else {
-      dispatch(setError('Failed to add custom workout.'));
+      dispatch(setError("Failed to add custom workout."));
     }
   } catch (error) {
-    dispatch(setError('An error occurred while adding custom workout.'));
+    dispatch(setError("An error occurred while adding custom workout."));
+  }
+};
+
+/* Delete custom workout */
+export const deleteCustomWorkout = (userWorkoutId) => async (dispatch) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.delete(
+      `${DELETE_CUSTOM_WORKOUT}/${userWorkoutId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (response.data.status === "Success") {
+      dispatch(deleteCustomWorkoutSuccess(userWorkoutId));
+      console.log(response.data)
+    } else {
+      dispatch(setError("Failed to delete custom workout."));
+    }
+  } catch (error) {
+    dispatch(setError("An error occurred while deleting custom workout."));
   }
 };
 

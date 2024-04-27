@@ -8,7 +8,8 @@ import {
   selectCustomWorkouts,
   selectWorkouts,
   selectError,
-  setError
+  setError,
+  deleteCustomWorkout
 } from "../../slice/workoutSlice";
 import {
   Typography,
@@ -41,12 +42,12 @@ const WorkoutForm = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
 
+  const userId = localStorage.getItem("userId");
+
   useEffect(() => {
     dispatch(fetchWorkouts());
-    dispatch(fetchCustomWorkouts(1));
+    dispatch(fetchCustomWorkouts(userId));
   }, [dispatch]);
-
-  console.log(customWorkouts); // remove this
 
   const handleAddExercise = () => {
     if (selectedWorkout.trim() !== "" && exerciseName.trim() !== "") {
@@ -91,15 +92,15 @@ const WorkoutForm = () => {
 
   const handleAddCustomWorkout = () => {
     if (customWorkout.trim() !== "" && !workouts.includes(customWorkout)) {
-      dispatch(addCustomWorkout(1, customWorkout));
-      setSelectedWorkout(customWorkout);
+      dispatch(addCustomWorkout(userId, customWorkout));
+      setSelectedWorkout(customWorkout.workoutName);
       setCustomWorkout("");
       handleSuccessAlert();
     }
   };
 
-  const handleDeleteWorkout = (workout) => {
-    dispatch(deleteWorkout(workout));
+  const handleDeleteWorkout = (userWorkoutId) => {
+    dispatch(deleteCustomWorkout(userWorkoutId))
   };
 
   const handleSuccessAlert = () => {
@@ -159,16 +160,16 @@ const WorkoutForm = () => {
           {/* Custom workouts */}
           {Array.isArray(customWorkouts) && customWorkouts.map((workout) => (
             <MenuItem
-              key={workout}
-              value={workout}
+              key={workout.userWorkoutId}
+              value={workout.workoutName}
               style={{ color: "#7077A1", fontFamily: "Poppins" }}
             >
-              {workout}
+              {workout.workoutName}
               {isDropdownOpen &&
-                selectedWorkout !== workout && (
+                selectedWorkout !== workout.workoutName && (
                   <DeleteIcon
                     style={{ marginLeft: "auto", cursor: "pointer" }}
-                    onClick={() => handleDeleteWorkout(workout)}
+                    onClick={() => handleDeleteWorkout(workout.userWorkoutId)}
                   />
                 )}
             </MenuItem>

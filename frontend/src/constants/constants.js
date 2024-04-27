@@ -5,3 +5,4 @@ export const SIGN_UP_URL = `${BASE_URL}/auth/signup`;
 export const GET_WORKOUTS = `${BASE_URL}/workouts`;
 export const GET_CUSTOM_WORKOUTS = `${BASE_URL}/viewCustomWorkouts`;
 export const ADD_CUSTOM_WORKOUT = `${BASE_URL}/customWorkout`;
+export const DELETE_CUSTOM_WORKOUT = `${BASE_URL}/deleteCustomWorkout`;
