@@ -8,7 +8,8 @@ import {
   selectWorkouts,
   selectError,
   setError,
-  deleteCustomWorkout
+  deleteCustomWorkout,
+  addExercise
 } from "../../slice/workoutSlice";
 import {
   Typography,
@@ -51,6 +52,12 @@ const WorkoutForm = () => {
 
   const handleAddExercise = () => {
     if (selectedWorkout.trim() !== "" && exerciseName.trim() !== "") {
+      let body = {
+        "userId" : userId,
+        "workoutName" : selectedWorkout,
+        "excerciseName" : exerciseName
+      }
+      dispatch(addExercise(body))
       setAddedExercises([
         ...addedExercises,
         {
