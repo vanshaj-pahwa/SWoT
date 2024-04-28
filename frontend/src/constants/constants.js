@@ -7,3 +7,4 @@ export const GET_CUSTOM_WORKOUTS = `${BASE_URL}/viewCustomWorkouts`;
 export const ADD_CUSTOM_WORKOUT = `${BASE_URL}/customWorkout`;
 export const DELETE_CUSTOM_WORKOUT = `${BASE_URL}/deleteCustomWorkout`;
 export const ADD_EXERCISE = `${BASE_URL}/addExercise`;
+export const VIEW_EXERCISE = `${BASE_URL}/viewExercise`;
