@@ -90,6 +90,7 @@ export const signupUser = (userInfo) => async (dispatch) => {
         const { token, userId, userName, emailId } = response.data.body;
         dispatch(signupSuccess({ token, userId, userName, emailId }));
         localStorage.setItem("token", token);
+        localStorage.setItem("userId", userId);
         localStorage.setItem("userName", userName);
         localStorage.setItem("emailId", emailId);
         resolve();

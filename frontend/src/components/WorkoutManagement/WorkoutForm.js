@@ -8,7 +8,10 @@ import {
   selectWorkouts,
   selectError,
   setError,
-  deleteCustomWorkout
+  deleteCustomWorkout,
+  addExercise,
+  viewExercise,
+  selectFetchedExercises,
 } from "../../slice/workoutSlice";
 import {
   Typography,
@@ -34,6 +37,7 @@ const WorkoutForm = () => {
   const workouts = useSelector(selectWorkouts);
   const customWorkouts = useSelector(selectCustomWorkouts);
   const error = useSelector(selectError);
+  const fetchedExercises = useSelector(selectFetchedExercises);
   const [selectedWorkout, setSelectedWorkout] = useState("");
   const [exerciseName, setExerciseName] = useState("");
   const [addedExercises, setAddedExercises] = useState([]);
@@ -47,15 +51,23 @@ const WorkoutForm = () => {
   useEffect(() => {
     dispatch(fetchWorkouts());
     dispatch(fetchCustomWorkouts(userId));
+    dispatch(viewExercise(userId));
   }, [dispatch, userId]);
 
   const handleAddExercise = () => {
     if (selectedWorkout.trim() !== "" && exerciseName.trim() !== "") {
+      dispatch(viewExercise(userId));
+      let body = {
+        userId: userId,
+        workoutName: selectedWorkout,
+        excerciseName: exerciseName,
+      };
+      dispatch(addExercise(body));
       setAddedExercises([
         ...addedExercises,
         {
-          workout: selectedWorkout,
-          exercise: exerciseName,
+          workoutName: selectedWorkout,
+          exerciseName: exerciseName,
           sets: [{ setNumber: 1, weight: "", reps: "" }],
         },
       ]);
@@ -160,22 +172,22 @@ const WorkoutForm = () => {
           ))}
 
           {/* Custom workouts */}
-          {Array.isArray(customWorkouts) && customWorkouts.map((workout) => (
-            <MenuItem
-              key={workout.userWorkoutId}
-              value={workout.workoutName}
-              style={{ color: "#7077A1", fontFamily: "Poppins" }}
-            >
-              {workout.workoutName}
-              {isDropdownOpen &&
-                selectedWorkout !== workout.workoutName && (
+          {Array.isArray(customWorkouts) &&
+            customWorkouts.map((workout) => (
+              <MenuItem
+                key={workout.userWorkoutId}
+                value={workout.workoutName}
+                style={{ color: "#7077A1", fontFamily: "Poppins" }}
+              >
+                {workout.workoutName}
+                {isDropdownOpen && selectedWorkout !== workout.workoutName && (
                   <DeleteIcon
                     style={{ marginLeft: "auto", cursor: "pointer" }}
                     onClick={() => handleDeleteWorkout(workout.userWorkoutId)}
                   />
                 )}
-            </MenuItem>
-          ))}
+              </MenuItem>
+            ))}
 
           {/* Add Yours option */}
           <MenuItem
@@ -245,8 +257,8 @@ const WorkoutForm = () => {
 
       <div className="addedExercises" style={{ marginTop: "20px" }}>
         <Slider {...sliderSettings}>
-          {addedExercises.map((item, exerciseIndex) => (
-            <Card key={exerciseIndex}>
+          {fetchedExercises && fetchedExercises.map((item) => (
+            item.workoutName === selectedWorkout && <Card key={item.userExcerciseId}>
               <CardContent style={{ padding: 0 }}>
                 <Typography
                   style={{
@@ -266,8 +278,8 @@ const WorkoutForm = () => {
                     margin: "10px",
                   }}
                   variant="h5"
-                >{`${item.workout} - ${item.exercise}`}</Typography>
-                {item.sets.map((set, setIndex) => (
+                >{`${item.workoutName} - ${item.exerciseName}`}</Typography>
+                {/* {item.sets.map((set, setIndex) => (
                   <Grid container justifyContent={"center"}>
                     <Grid item xs={2}>
                       <Typography
@@ -315,7 +327,7 @@ const WorkoutForm = () => {
                         className="weight-input"
                         onChange={(e) => {
                           const updatedExercises = [...addedExercises];
-                          updatedExercises[exerciseIndex].sets[
+                          updatedExercises[item.userExcerciseId].sets[
                             setIndex
                           ].weight = e.target.value;
                           setAddedExercises(updatedExercises);
@@ -346,7 +358,7 @@ const WorkoutForm = () => {
                         className="weight-input"
                         onChange={(e) => {
                           const updatedExercises = [...addedExercises];
-                          updatedExercises[exerciseIndex].sets[setIndex].reps =
+                          updatedExercises[item.userExcerciseId].sets[setIndex].reps =
                             e.target.value;
                           setAddedExercises(updatedExercises);
                         }}
@@ -360,11 +372,11 @@ const WorkoutForm = () => {
                     >
                       <DeleteIcon
                         style={{ cursor: "pointer" }}
-                        onClick={() => handleDeleteSet(exerciseIndex, setIndex)}
+                        onClick={() => handleDeleteSet(item.userExerciseId, setIndex)}
                       />
                     </Grid>
                   </Grid>
-                ))}
+                ))} */}
                 <div className="add-set-button">
                   <Button
                     variant="text"
@@ -373,7 +385,7 @@ const WorkoutForm = () => {
                       fontWeight: "bold",
                       fontFamily: "Poppins",
                     }}
-                    onClick={() => handleAddSet(exerciseIndex)}
+                    onClick={() => handleAddSet(item.userExerciseId)}
                   >
                     Add Set
                   </Button>

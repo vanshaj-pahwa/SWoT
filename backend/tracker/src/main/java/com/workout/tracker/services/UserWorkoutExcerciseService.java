@@ -1,7 +1,7 @@
 package com.workout.tracker.services;
 
+import com.workout.tracker.dto.request.UserWorkoutExerciseDTO;
 import com.workout.tracker.dto.request.WorkoutExcerciseRequestDto;
-import com.workout.tracker.entities.UserExcercise;
 import com.workout.tracker.entities.UserWorkoutExcercise;
 import com.workout.tracker.repositories.UserExcerciseRepository;
 import com.workout.tracker.repositories.UserWorkoutExcerciseRepository;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +31,23 @@ public class UserWorkoutExcerciseService {
                 .build()));
         log.info(userWorkoutExcercises.toString());
         userWorkoutExcerciseRepository.saveAll(userWorkoutExcercises);
+    }
+
+    public List<UserWorkoutExerciseDTO> getAllAddedSets() {
+        List<UserWorkoutExcercise> userWorkoutExcercises = userWorkoutExcerciseRepository.findAll();
+        return userWorkoutExcercises.stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    private UserWorkoutExerciseDTO mapToDTO(UserWorkoutExcercise entity) {
+        return UserWorkoutExerciseDTO.builder()
+                .userWorkoutExcerciseId(entity.getUserWorkoutExcerciseId())
+                .userExcerciseId(entity.getUserExcercise().getUserExcerciseId())
+                .weight(entity.getWeight())
+                .reps(entity.getReps())
+                .dateTime(entity.getDateTime())
+                .build();
     }
 
 }

@@ -5,6 +5,8 @@ import {
   GET_CUSTOM_WORKOUTS,
   GET_WORKOUTS,
   DELETE_CUSTOM_WORKOUT,
+  ADD_EXERCISE,
+  VIEW_EXERCISE,
 } from "../constants/constants";
 
 export const workoutSlice = createSlice({
@@ -14,10 +16,18 @@ export const workoutSlice = createSlice({
     customWorkouts: [],
     loading: false,
     error: null,
+    addExerciseSuccessMsg: null,
+    fetchedExercises: [],
   },
   reducers: {
     addCustomWorkoutSuccess: (state, action) => {
       state.customWorkouts.push(action.payload);
+    },
+    addExerciseSuccess: (state, action) => {
+      state.addExerciseSuccessMsg = action.payload;
+    },
+    setFetchedExercises: (state, action) => {
+      state.fetchedExercises = action.payload;
     },
     deleteWorkout: (state, action) => {
       state.workouts = state.workouts.filter((workout) => workout !== action.payload);
@@ -53,7 +63,9 @@ export const {
   setWorkouts,
   setCustomWorkouts,
   setUserWorkoutId,
-  deleteWorkout
+  deleteWorkout,
+  addExerciseSuccess,
+  setFetchedExercises
 } = workoutSlice.actions;
 
 export const selectWorkouts = (state) => state.workout.workouts;
@@ -61,6 +73,8 @@ export const selectLoading = (state) => state.workout.loading;
 export const selectError = (state) => state.workout.error;
 export const selectCustomWorkouts = (state) => state.workout.customWorkouts;
 export const selectUserWorkoutId = (state) => state.workout.userWorkoutId;
+export const selectAddExerciseMsg = (state) => state.workout.addExerciseSuccessMsg;
+export const selectFetchedExercises = (state) => state.workout.fetchedExercises;
 
 /* Fetch pre-added workouts */
 export const fetchWorkouts = () => async (dispatch) => {
@@ -151,6 +165,49 @@ export const deleteCustomWorkout = (userWorkoutId) => async (dispatch) => {
     }
   } catch (error) {
     dispatch(setError("An error occurred while deleting custom workout."));
+  }
+};
+
+/* Add Exercise */
+export const addExercise = (body) => async (dispatch) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.post(ADD_EXERCISE, body, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.data.status === "Success") {
+      dispatch(addExerciseSuccess(response.data.body));
+    } else {
+      dispatch(setError("Failed to add exercise."));
+    }
+  } catch (error) {
+    dispatch(setError("An error occurred while adding exercise."));
+  }
+};
+
+/* View Exercise */
+export const viewExercise = (userId) => async (dispatch) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.get(VIEW_EXERCISE, {
+      params: {
+        userId
+      },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.data.status === "Success") {
+      dispatch(setFetchedExercises(response.data.body));
+    } else {
+      dispatch(setError("Failed to add exercise."));
+    }
+  } catch (error) {
+    dispatch(setError("An error occurred while adding exercise."));
   }
 };
 
