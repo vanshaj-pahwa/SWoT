@@ -1,14 +1,12 @@
 package com.workout.tracker.controllers;
 
+import com.workout.tracker.dto.request.UserWorkoutExerciseDTO;
 import com.workout.tracker.dto.request.WorkoutExcerciseRequestDto;
 import com.workout.tracker.services.UserWorkoutExcerciseService;
 import com.workout.tracker.utils.ResponseEntityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -25,6 +23,16 @@ public class UserWorkoutExcerciseController {
             return ResponseEntityUtils.createSuccessResponse("Added the sets to the exercise successfully!", "Save operation successful.");
         } catch (Exception e){
             return ResponseEntityUtils.createErrorResponse("Error saving exercise sets.");
+        }
+    }
+
+    @GetMapping("/viewAddedSets")
+    public ResponseEntity<?> viewAddedSets(){
+        try{
+            List<UserWorkoutExerciseDTO> addedSets = userWorkoutExcerciseService.getAllAddedSets();
+            return ResponseEntityUtils.createSuccessResponse(addedSets, "Retrieved added sets successfully!");
+        } catch (Exception e){
+            return ResponseEntityUtils.createErrorResponse("Error retrieving added sets.");
         }
     }
 }
