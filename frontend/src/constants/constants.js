@@ -10,3 +10,4 @@ export const ADD_EXERCISE = `${BASE_URL}/addExercise`;
 export const VIEW_EXERCISE = `${BASE_URL}/viewExercise`;
 export const ADD_SET = `${BASE_URL}/addExerciseSets`;
 export const VIEW_SET = `${BASE_URL}/viewAddedSets`;
+export const DELETE_SET = `${BASE_URL}/deleteSet`;

@@ -16,6 +16,7 @@ import {
   selectAddedSets,
   selectLoading,
   addExerciseSets,
+  deleteSet,
 } from "../../slice/workoutSlice";
 import {
   Typography,
@@ -186,6 +187,7 @@ const WorkoutForm = () => {
     const sets = exerciseSets[exerciseId] || [];
     const updatedSets = sets.filter((set) => set.setNumber !== setNumber);
     setExerciseSets({ ...exerciseSets, [exerciseId]: updatedSets });
+    dispatch(deleteSet(setNumber));
   };
 
   const handleAddCustomWorkout = () => {

@@ -9,6 +9,7 @@ import {
   VIEW_EXERCISE,
   VIEW_SET,
   ADD_SET,
+  DELETE_SET,
 } from "../constants/constants";
 
 export const workoutSlice = createSlice({
@@ -229,6 +230,7 @@ export const viewExercise = (userId) => async (dispatch) => {
   }
 };
 
+/* View Added Sets */
 export const viewAddedSets = () => async (dispatch) => {
   try {
     const token = localStorage.getItem("token");
@@ -248,6 +250,7 @@ export const viewAddedSets = () => async (dispatch) => {
   }
 };
 
+/* Add Exercise Sets */
 export const addExerciseSets = (body) => async (dispatch) => {
   try {
     const token = localStorage.getItem("token");
@@ -264,6 +267,26 @@ export const addExerciseSets = (body) => async (dispatch) => {
     }
   } catch (error) {
     dispatch(setError("An error occurred while adding set."));
+  }
+};
+
+/* Deleting a set */
+export const deleteSet = (userWorkoutExerciseId) => async (dispatch) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.delete(`${DELETE_SET}/${userWorkoutExerciseId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.data.status === "Success") {
+      dispatch(viewAddedSets());
+    } else {
+      dispatch(setError("Failed to delete set."));
+    }
+  } catch (error) {
+    dispatch(setError("An error occurred while deleting set."));
   }
 };
 
