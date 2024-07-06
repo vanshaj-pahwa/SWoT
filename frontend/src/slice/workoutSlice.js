@@ -7,6 +7,8 @@ import {
   DELETE_CUSTOM_WORKOUT,
   ADD_EXERCISE,
   VIEW_EXERCISE,
+  VIEW_SET,
+  ADD_SET,
 } from "../constants/constants";
 
 export const workoutSlice = createSlice({
@@ -18,6 +20,7 @@ export const workoutSlice = createSlice({
     error: null,
     addExerciseSuccessMsg: null,
     fetchedExercises: [],
+    addedSets: [],
   },
   reducers: {
     addCustomWorkoutSuccess: (state, action) => {
@@ -52,6 +55,9 @@ export const workoutSlice = createSlice({
       state.error = action.payload;
       state.loading = false;
     },
+    setAddedSets: (state, action) => {
+      state.addedSets = action.payload;
+    },
   },
 });
 
@@ -65,7 +71,8 @@ export const {
   setUserWorkoutId,
   deleteWorkout,
   addExerciseSuccess,
-  setFetchedExercises
+  setFetchedExercises,
+  setAddedSets
 } = workoutSlice.actions;
 
 export const selectWorkouts = (state) => state.workout.workouts;
@@ -75,6 +82,7 @@ export const selectCustomWorkouts = (state) => state.workout.customWorkouts;
 export const selectUserWorkoutId = (state) => state.workout.userWorkoutId;
 export const selectAddExerciseMsg = (state) => state.workout.addExerciseSuccessMsg;
 export const selectFetchedExercises = (state) => state.workout.fetchedExercises;
+export const selectAddedSets = (state) => state.workout.addedSets;
 
 /* Fetch pre-added workouts */
 export const fetchWorkouts = () => async (dispatch) => {
@@ -100,6 +108,7 @@ export const fetchWorkouts = () => async (dispatch) => {
 
 /* Fetch custom workouts */
 export const fetchCustomWorkouts = (userId) => async (dispatch) => {
+  dispatch(setLoading(true));
   try {
     const token = localStorage.getItem("token");
     const response = await axios.get(GET_CUSTOM_WORKOUTS, {
@@ -113,16 +122,20 @@ export const fetchCustomWorkouts = (userId) => async (dispatch) => {
 
     if (response.data.status === "Success") {
       dispatch(setCustomWorkouts(response.data.body));
+      dispatch(setLoading(false));
     } else {
       dispatch(setError("Failed to fetch workouts."));
+      dispatch(setLoading(false));
     }
   } catch (error) {
     dispatch(setError("An error occurred while fetching workouts."));
+    dispatch(setLoading(false));
   }
 };
 
 /* Add custom workout */
 export const addCustomWorkout = (userId, workoutName) => async (dispatch) => {
+  dispatch(setLoading(true));
   try {
     const token = localStorage.getItem("token");
     const response = await axios.post(ADD_CUSTOM_WORKOUT, null, {
@@ -137,11 +150,14 @@ export const addCustomWorkout = (userId, workoutName) => async (dispatch) => {
 
     if (response.data.status === "Success") {
       dispatch(addCustomWorkoutSuccess(response.data.body));
+      dispatch(setLoading(false));
     } else {
       dispatch(setError("Failed to add custom workout."));
+      dispatch(setLoading(false));
     }
   } catch (error) {
     dispatch(setError("An error occurred while adding custom workout."));
+    dispatch(setLoading(false));
   }
 };
 
@@ -180,6 +196,8 @@ export const addExercise = (body) => async (dispatch) => {
 
     if (response.data.status === "Success") {
       dispatch(addExerciseSuccess(response.data.body));
+      let userId = localStorage.getItem("userId");
+      dispatch(viewExercise(userId));
     } else {
       dispatch(setError("Failed to add exercise."));
     }
@@ -208,6 +226,44 @@ export const viewExercise = (userId) => async (dispatch) => {
     }
   } catch (error) {
     dispatch(setError("An error occurred while adding exercise."));
+  }
+};
+
+export const viewAddedSets = () => async (dispatch) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.get(VIEW_SET, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.data.status === "Success") {
+      dispatch(setAddedSets(response.data.body));
+    } else {
+      dispatch(setError("Failed to add exercise."));
+    }
+  } catch (error) {
+    dispatch(setError("An error occurred while adding exercise."));
+  }
+};
+
+export const addExerciseSets = (body) => async (dispatch) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.post(ADD_SET, body, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.data.status === "Success") {
+      dispatch(viewAddedSets());
+    } else {
+      dispatch(setError("Failed to add set."));
+    }
+  } catch (error) {
+    dispatch(setError("An error occurred while adding set."));
   }
 };
 
