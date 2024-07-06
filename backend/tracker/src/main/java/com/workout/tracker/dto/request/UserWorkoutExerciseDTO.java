@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class UserWorkoutExerciseDTO {
     private int userWorkoutExcerciseId;
+    private int setNumber;
     private int userExcerciseId;
     private int weight;
     private int reps;

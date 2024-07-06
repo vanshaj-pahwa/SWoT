@@ -25,6 +25,7 @@ public class UserWorkoutExcerciseService {
         List<UserWorkoutExcercise> userWorkoutExcercises = new ArrayList<>();
         workoutExcerciseRequestDtos.forEach(workoutExcerciseRequestDto -> userWorkoutExcercises.add(UserWorkoutExcercise.builder()
                 .userExcercise(userExcerciseRepository.findById(workoutExcerciseRequestDto.getUserExcerciseId()).get())
+                        .setNumber(workoutExcerciseRequestDto.getSetNumber())
                         .weight(workoutExcerciseRequestDto.getWeight())
                         .reps(workoutExcerciseRequestDto.getReps())
                         .dateTime(LocalDateTime.now())
@@ -43,6 +44,7 @@ public class UserWorkoutExcerciseService {
     private UserWorkoutExerciseDTO mapToDTO(UserWorkoutExcercise entity) {
         return UserWorkoutExerciseDTO.builder()
                 .userWorkoutExcerciseId(entity.getUserWorkoutExcerciseId())
+                .setNumber(entity.getSetNumber())
                 .userExcerciseId(entity.getUserExcercise().getUserExcerciseId())
                 .weight(entity.getWeight())
                 .reps(entity.getReps())

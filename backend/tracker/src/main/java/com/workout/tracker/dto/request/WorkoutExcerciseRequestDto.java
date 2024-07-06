@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class WorkoutExcerciseRequestDto {
     private int userExcerciseId;
+    private int setNumber;
     private int weight;
     private int reps;
 }

@@ -177,6 +177,7 @@ const WorkoutForm = () => {
     // Update addSetData
     const updatedAddSetData = updatedSets.map((set) => ({
       userExcerciseId: exerciseId,
+      setNumber: set.setNumber,
       weight: set.weight,
       reps: set.reps,
     }));
@@ -187,7 +188,26 @@ const WorkoutForm = () => {
     const sets = exerciseSets[exerciseId] || [];
     const updatedSets = sets.filter((set) => set.setNumber !== setNumber);
     setExerciseSets({ ...exerciseSets, [exerciseId]: updatedSets });
-    dispatch(deleteSet(setNumber));
+  
+    const setExists = addedSets.some(set => 
+      set.userExcerciseId === exerciseId && set.setNumber === setNumber
+    );
+
+    console.log(addedSets, setExists);
+  
+    if (setExists) {
+      dispatch(deleteSet(setNumber));
+    } else {
+      console.log("Set not saved yet, only removing from local state");
+    }
+  
+    // Update addSetData to reflect the deletion
+    const updatedAddSetData = updatedSets.map((set) => ({
+      userExcerciseId: exerciseId,
+      weight: set.weight,
+      reps: set.reps,
+    }));
+    setAddSetData(updatedAddSetData);
   };
 
   const handleAddCustomWorkout = () => {
