@@ -19,6 +19,7 @@ public class UserWorkoutExcercise {
     @GeneratedValue
     private int userWorkoutExcerciseId;
 
+    private int setNumber;
     @ManyToOne
     @JoinColumn(name="user_excercise_id", referencedColumnName = "user_excercise_id")
     private UserExcercise userExcercise;
