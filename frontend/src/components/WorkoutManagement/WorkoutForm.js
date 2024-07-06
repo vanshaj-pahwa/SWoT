@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addCustomWorkout,
@@ -12,6 +12,11 @@ import {
   addExercise,
   viewExercise,
   selectFetchedExercises,
+  viewAddedSets,
+  selectAddedSets,
+  selectLoading,
+  addExerciseSets,
+  deleteSet,
 } from "../../slice/workoutSlice";
 import {
   Typography,
@@ -37,7 +42,9 @@ const WorkoutForm = () => {
   const workouts = useSelector(selectWorkouts);
   const customWorkouts = useSelector(selectCustomWorkouts);
   const error = useSelector(selectError);
+  const loading = useSelector(selectLoading);
   const fetchedExercises = useSelector(selectFetchedExercises);
+  const addedSets = useSelector(selectAddedSets);
   const [selectedWorkout, setSelectedWorkout] = useState("");
   const [exerciseName, setExerciseName] = useState("");
   const [addedExercises, setAddedExercises] = useState([]);
@@ -45,6 +52,10 @@ const WorkoutForm = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const [exerciseSets, setExerciseSets] = useState({});
+  const [addSetData, setAddSetData] = useState([]);
+
+  const bottomRef = useRef(null);
 
   const userId = localStorage.getItem("userId");
 
@@ -52,54 +63,131 @@ const WorkoutForm = () => {
     dispatch(fetchWorkouts());
     dispatch(fetchCustomWorkouts(userId));
     dispatch(viewExercise(userId));
+    dispatch(viewAddedSets());
   }, [dispatch, userId]);
 
   const handleAddExercise = () => {
     if (selectedWorkout.trim() !== "" && exerciseName.trim() !== "") {
-      dispatch(viewExercise(userId));
       let body = {
         userId: userId,
         workoutName: selectedWorkout,
         excerciseName: exerciseName,
       };
       dispatch(addExercise(body));
-      setAddedExercises([
-        ...addedExercises,
-        {
-          workoutName: selectedWorkout,
-          exerciseName: exerciseName,
-          sets: [{ setNumber: 1, weight: "", reps: "" }],
-        },
-      ]);
+      dispatch(viewExercise(userId));
+      if (Array.isArray(addedExercises)) {
+        setAddedExercises([...addedExercises, ...fetchedExercises]);
+      } else {
+        setAddedExercises([...fetchedExercises]);
+      }
       setExerciseName("");
     }
   };
 
-  const handleAddSet = (exerciseIndex) => {
-    const updatedExercises = [...addedExercises];
-    const newSetNumber = addedExercises[exerciseIndex].sets.length + 1;
-    updatedExercises[exerciseIndex].sets.push({
-      setNumber: newSetNumber,
-      weight: "",
-      reps: "",
-    });
-    setAddedExercises(updatedExercises);
+  useEffect(() => {
+    viewExercise(userId);
+  }, [fetchedExercises, userId]);
+
+  useEffect(() => {
+    if (addedSets.length > 0) {
+      const newExerciseSets = {};
+      addedSets.forEach((set) => {
+        if (!newExerciseSets[set.userExcerciseId]) {
+          newExerciseSets[set.userExcerciseId] = [];
+        }
+        newExerciseSets[set.userExcerciseId].push({
+          setNumber: newExerciseSets[set.userExcerciseId].length + 1,
+          weight: set.weight.toString(),
+          reps: set.reps.toString(),
+        });
+      });
+      setExerciseSets(newExerciseSets);
+    }
+  }, [addedSets]);
+
+  // const handleAddSet = (exerciseId) => {
+  //   const sets = exerciseSets[exerciseId] || [];
+  //   const lastSet = sets[sets.length - 1];
+
+  //   if (lastSet === undefined) {
+  //     const newSet = { setNumber: sets.length + 1, weight: "", reps: "" };
+  //     sets.push(newSet);
+  //     setExerciseSets({ ...exerciseSets, [exerciseId]: sets });
+  //     dispatch(setError(""));
+  //     scrollToBottom();
+  //   } else if (
+  //     lastSet &&
+  //     lastSet.weight.trim() !== "" &&
+  //     lastSet.reps.trim() !== ""
+  //   ) {
+  //     const newSet = { setNumber: sets.length + 1, weight: "", reps: "" };
+  //     sets.push(newSet);
+  //     setExerciseSets({ ...exerciseSets, [exerciseId]: sets });
+  //     dispatch(setError(""));
+      
+  //     let body = [{
+  //       "userExcerciseId" : exerciseId,
+  //       "weight" : lastSet.weight,
+  //       "reps" : lastSet.reps
+  //     }];
+
+  //     dispatch(addExerciseSets(body));
+  //     setAddSetData(body);
+
+  //     scrollToBottom();
+  //   } else {
+  //     dispatch(setError("Please enter weight and reps before adding a new set."));
+  //     scrollToBottom();
+  //   }
+  // };
+
+  const handleAddSet = (exerciseId) => {
+    const sets = exerciseSets[exerciseId] || [];
+    const newSet = { setNumber: sets.length + 1, weight: "", reps: "" };
+    sets.push(newSet);
+    setExerciseSets({ ...exerciseSets, [exerciseId]: sets });
+    dispatch(setError(""));
+    scrollToBottom();
   };
 
-  const handleDeleteSet = (exerciseIndex, setIndex) => {
-    const updatedExercises = [...addedExercises];
-    const sets = updatedExercises[exerciseIndex].sets;
-
-    if (sets.length === 1) {
-      // If there is only one set, set weight and reps to null
-      sets[setIndex].weight = "";
-      sets[setIndex].reps = "";
+  const saveWorkout = () => {
+    if(addSetData.length > 0) {
+      dispatch(addExerciseSets(addSetData));
+      dispatch(setError(""));
     } else {
-      // If there are multiple sets, delete the complete row
-      sets.splice(setIndex, 1);
+      dispatch(setError("Please add all the information before saving the workout."))
     }
+  }
 
-    setAddedExercises(updatedExercises);
+  // const handleSetChange = (exerciseId, setNumber, field, value) => {
+  //   const sets = exerciseSets[exerciseId] || [];
+  //   const updatedSets = sets.map((set) =>
+  //     set.setNumber === setNumber ? { ...set, [field]: value } : set
+  //   );
+  //   setExerciseSets({ ...exerciseSets, [exerciseId]: updatedSets });
+  // };
+
+  const handleSetChange = (exerciseId, setNumber, field, value) => {
+    const sets = exerciseSets[exerciseId] || [];
+    const updatedSets = sets.map((set) =>
+      set.setNumber === setNumber ? { ...set, [field]: value } : set
+    );
+    setExerciseSets({ ...exerciseSets, [exerciseId]: updatedSets });
+  
+    // Update addSetData
+    const updatedAddSetData = updatedSets.map((set) => ({
+      userExcerciseId: exerciseId,
+      weight: set.weight,
+      reps: set.reps,
+    }));
+    setAddSetData(updatedAddSetData);
+  };
+
+  const handleDeleteSet = (exerciseId, setNumber) => {
+    const sets = exerciseSets[exerciseId] || [];
+    const updatedSets = sets.filter((set) => set.setNumber !== setNumber);
+    setExerciseSets({ ...exerciseSets, [exerciseId]: updatedSets });
+    dispatch(deleteSet(setNumber));
   };
 
   const handleAddCustomWorkout = () => {
@@ -107,13 +195,17 @@ const WorkoutForm = () => {
       dispatch(addCustomWorkout(userId, customWorkout));
       setSelectedWorkout(customWorkout);
       setCustomWorkout("");
-      handleSuccessAlert("Your custom workout added successfully!");
+      !loading &&
+        !error &&
+        handleSuccessAlert("Your custom workout added successfully!");
     }
   };
 
   const handleDeleteWorkout = (userWorkoutId) => {
     dispatch(deleteCustomWorkout(userWorkoutId));
-    handleSuccessAlert("Your custom workout deleted successfully!");
+    !loading &&
+      !error &&
+      handleSuccessAlert("Your custom workout deleted successfully!");
   };
 
   const handleSuccessAlert = (message) => {
@@ -126,6 +218,16 @@ const WorkoutForm = () => {
     }, 4000);
   };
 
+  const scrollToBottom = () => {
+    if (bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const isExerciseAdded = (userExerciseId) => {
+    return addedSets.some((set) => set.userExcerciseId === userExerciseId);
+  };
+
   const sliderSettings = {
     dots: true,
     infinite: true,
@@ -135,7 +237,7 @@ const WorkoutForm = () => {
   };
 
   return (
-    <div className="workout-form">
+    <div className="workout-form" ref={bottomRef}>
       <Typography
         variant="h6"
         style={{ fontFamily: "Poppins", color: "#424769" }}
@@ -257,145 +359,162 @@ const WorkoutForm = () => {
 
       <div className="addedExercises" style={{ marginTop: "20px" }}>
         <Slider {...sliderSettings}>
-          {fetchedExercises && fetchedExercises.map((item) => (
-            item.workoutName === selectedWorkout && <Card key={item.userExcerciseId}>
-              <CardContent style={{ padding: 0 }}>
-                <Typography
-                  style={{
-                    fontFamily: "Poppins",
-                    color: "white",
-                    fontSize: "12px",
-                    backgroundColor: "#424769",
-                    padding: "10px",
-                  }}
-                >
-                  YOUR EXERCISE
-                </Typography>
-                <Typography
-                  style={{
-                    fontFamily: "Poppins",
-                    color: "#424769",
-                    margin: "10px",
-                  }}
-                  variant="h5"
-                >{`${item.workoutName} - ${item.exerciseName}`}</Typography>
-                {/* {item.sets.map((set, setIndex) => (
-                  <Grid container justifyContent={"center"}>
-                    <Grid item xs={2}>
+          {fetchedExercises &&
+            fetchedExercises.map(
+              (item) =>
+                item.workoutName === selectedWorkout && (
+                  <Card key={item.userExcerciseId}>
+                    <CardContent style={{ padding: 0 }}>
                       <Typography
                         style={{
                           fontFamily: "Poppins",
-                          color: "#7077A1",
+                          color: "white",
                           fontSize: "12px",
-                          margin: "10px",
+                          backgroundColor: "#424769",
+                          padding: "10px",
                         }}
                       >
-                        Set
+                        YOUR EXERCISE
                       </Typography>
                       <Typography
                         style={{
                           fontFamily: "Poppins",
-                          color: "#7077A1",
-                          fontSize: "12px",
+                          color: "#424769",
                           margin: "10px",
                         }}
-                      >
-                        {set.setNumber}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={4}>
-                      <Typography
-                        style={{
-                          fontFamily: "Poppins",
-                          color: "#7077A1",
-                          fontSize: "12px",
-                          margin: "10px",
-                        }}
-                      >
-                        Weight
-                      </Typography>
-                      <TextField
-                        value={set.weight}
-                        InputProps={{
-                          style: {
-                            color: "#7077A1",
+                        variant="h5"
+                      >{`${item.workoutName} - ${item.exerciseName}`}</Typography>
+                      {exerciseSets[item.userExcerciseId] &&
+                        exerciseSets[item.userExcerciseId].map((set) => (
+                          <Grid
+                            container
+                            key={set.setNumber}
+                            justifyContent={"center"}
+                          >
+                            <Grid item xs={2}>
+                              <Typography
+                                style={{
+                                  fontFamily: "Poppins",
+                                  color: "#7077A1",
+                                  fontSize: "12px",
+                                  margin: "10px",
+                                }}
+                              >
+                                Set
+                              </Typography>
+                              <Typography
+                                style={{
+                                  fontFamily: "Poppins",
+                                  color: "#7077A1",
+                                  fontSize: "12px",
+                                  margin: "10px",
+                                }}
+                              >
+                                {set.setNumber}
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={4}>
+                              <Typography
+                                style={{
+                                  fontFamily: "Poppins",
+                                  color: "#7077A1",
+                                  fontSize: "12px",
+                                  margin: "10px",
+                                }}
+                              >
+                                Weight
+                              </Typography>
+                              <TextField
+                                value={set.weight}
+                                InputProps={{
+                                  style: {
+                                    color: "#7077A1",
+                                    fontFamily: "Poppins",
+                                    fontSize: "12px",
+                                    height: "1.4375em",
+                                  },
+                                }}
+                                className="weight-input"
+                                onChange={(e) =>
+                                  handleSetChange(
+                                    item.userExcerciseId,
+                                    set.setNumber,
+                                    "weight",
+                                    e.target.value
+                                  )
+                                }
+                              />
+                            </Grid>
+                            <Grid item xs={4}>
+                              <Typography
+                                style={{
+                                  fontFamily: "Poppins",
+                                  color: "#7077A1",
+                                  fontSize: "12px",
+                                  margin: "10px",
+                                }}
+                              >
+                                Reps
+                              </Typography>
+                              <TextField
+                                value={set.reps}
+                                InputProps={{
+                                  style: {
+                                    color: "#7077A1",
+                                    fontFamily: "Poppins",
+                                    fontSize: "12px",
+                                    height: "1.4375em",
+                                  },
+                                }}
+                                className="weight-input"
+                                onChange={(e) =>
+                                  handleSetChange(
+                                    item.userExcerciseId,
+                                    set.setNumber,
+                                    "reps",
+                                    e.target.value
+                                  )
+                                }
+                              />
+                            </Grid>
+                            <Grid
+                              item
+                              xs={2}
+                              marginTop={"2rem"}
+                              className="delete-icon"
+                            >
+                              <DeleteIcon
+                                style={{ cursor: "pointer" }}
+                                onClick={() =>
+                                  handleDeleteSet(
+                                    item.userExcerciseId,
+                                    set.setNumber
+                                  )
+                                }
+                              />
+                            </Grid>
+                          </Grid>
+                        ))}
+                      {<div className="add-set-button">
+                        <Button
+                          variant="text"
+                          style={{
+                            color: "#424769",
+                            fontWeight: "bold",
                             fontFamily: "Poppins",
-                            fontSize: "12px",
-                            height: "1.4375em",
-                          },
-                        }}
-                        className="weight-input"
-                        onChange={(e) => {
-                          const updatedExercises = [...addedExercises];
-                          updatedExercises[item.userExcerciseId].sets[
-                            setIndex
-                          ].weight = e.target.value;
-                          setAddedExercises(updatedExercises);
-                        }}
-                      />
-                    </Grid>
-                    <Grid item xs={4}>
-                      <Typography
-                        style={{
-                          fontFamily: "Poppins",
-                          color: "#7077A1",
-                          fontSize: "12px",
-                          margin: "10px",
-                        }}
-                      >
-                        Reps
-                      </Typography>
-                      <TextField
-                        value={set.reps}
-                        InputProps={{
-                          style: {
-                            color: "#7077A1",
-                            fontFamily: "Poppins",
-                            fontSize: "12px",
-                            height: "1.4375em",
-                          },
-                        }}
-                        className="weight-input"
-                        onChange={(e) => {
-                          const updatedExercises = [...addedExercises];
-                          updatedExercises[item.userExcerciseId].sets[setIndex].reps =
-                            e.target.value;
-                          setAddedExercises(updatedExercises);
-                        }}
-                      />
-                    </Grid>
-                    <Grid
-                      item
-                      xs={2}
-                      marginTop={"2rem"}
-                      className="delete-icon"
-                    >
-                      <DeleteIcon
-                        style={{ cursor: "pointer" }}
-                        onClick={() => handleDeleteSet(item.userExerciseId, setIndex)}
-                      />
-                    </Grid>
-                  </Grid>
-                ))} */}
-                <div className="add-set-button">
-                  <Button
-                    variant="text"
-                    style={{
-                      color: "#424769",
-                      fontWeight: "bold",
-                      fontFamily: "Poppins",
-                    }}
-                    onClick={() => handleAddSet(item.userExerciseId)}
-                  >
-                    Add Set
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                          }}
+                          onClick={() => handleAddSet(item.userExcerciseId)}
+                        >
+                          Add Set
+                        </Button>
+                      </div>}
+                    </CardContent>
+                  </Card>
+                )
+            )}
         </Slider>
       </div>
-      {addedExercises.length > 0 && (
+      {fetchedExercises.length > 0 && (
         <Button
           variant="contained"
           style={{
@@ -403,8 +522,9 @@ const WorkoutForm = () => {
             backgroundColor: "#7077A1",
             fontFamily: "Poppins",
           }}
+          onClick={saveWorkout}
         >
-          ADD WORKOUT
+          SAVE WORKOUT
         </Button>
       )}
 
