@@ -87,41 +87,66 @@ const WorkoutForm = () => {
     viewExercise(userId);
   }, [fetchedExercises, userId]);
 
+  useEffect(() => {
+    if (addedSets.length > 0) {
+      const newExerciseSets = {};
+      addedSets.forEach((set) => {
+        if (!newExerciseSets[set.userExcerciseId]) {
+          newExerciseSets[set.userExcerciseId] = [];
+        }
+        newExerciseSets[set.userExcerciseId].push({
+          setNumber: newExerciseSets[set.userExcerciseId].length + 1,
+          weight: set.weight.toString(),
+          reps: set.reps.toString(),
+        });
+      });
+      setExerciseSets(newExerciseSets);
+    }
+  }, [addedSets]);
+
+  // const handleAddSet = (exerciseId) => {
+  //   const sets = exerciseSets[exerciseId] || [];
+  //   const lastSet = sets[sets.length - 1];
+
+  //   if (lastSet === undefined) {
+  //     const newSet = { setNumber: sets.length + 1, weight: "", reps: "" };
+  //     sets.push(newSet);
+  //     setExerciseSets({ ...exerciseSets, [exerciseId]: sets });
+  //     dispatch(setError(""));
+  //     scrollToBottom();
+  //   } else if (
+  //     lastSet &&
+  //     lastSet.weight.trim() !== "" &&
+  //     lastSet.reps.trim() !== ""
+  //   ) {
+  //     const newSet = { setNumber: sets.length + 1, weight: "", reps: "" };
+  //     sets.push(newSet);
+  //     setExerciseSets({ ...exerciseSets, [exerciseId]: sets });
+  //     dispatch(setError(""));
+      
+  //     let body = [{
+  //       "userExcerciseId" : exerciseId,
+  //       "weight" : lastSet.weight,
+  //       "reps" : lastSet.reps
+  //     }];
+
+  //     dispatch(addExerciseSets(body));
+  //     setAddSetData(body);
+
+  //     scrollToBottom();
+  //   } else {
+  //     dispatch(setError("Please enter weight and reps before adding a new set."));
+  //     scrollToBottom();
+  //   }
+  // };
+
   const handleAddSet = (exerciseId) => {
     const sets = exerciseSets[exerciseId] || [];
-    const lastSet = sets[sets.length - 1];
-
-    console.log(sets, lastSet);
-    if (lastSet === undefined) {
-      const newSet = { setNumber: sets.length + 1, weight: "", reps: "" };
-      sets.push(newSet);
-      setExerciseSets({ ...exerciseSets, [exerciseId]: sets });
-      dispatch(setError(""));
-      scrollToBottom();
-    } else if (
-      lastSet &&
-      lastSet.weight.trim() !== "" &&
-      lastSet.reps.trim() !== ""
-    ) {
-      const newSet = { setNumber: sets.length + 1, weight: "", reps: "" };
-      sets.push(newSet);
-      setExerciseSets({ ...exerciseSets, [exerciseId]: sets });
-      dispatch(setError(""));
-      
-      let body = [{
-        "userExcerciseId" : exerciseId,
-        "weight" : lastSet.weight,
-        "reps" : lastSet.reps
-      }];
-
-      dispatch(addExerciseSets(body));
-      setAddSetData(body);
-
-      scrollToBottom();
-    } else {
-      dispatch(setError("Please enter weight and reps before adding a new set."));
-      scrollToBottom();
-    }
+    const newSet = { setNumber: sets.length + 1, weight: "", reps: "" };
+    sets.push(newSet);
+    setExerciseSets({ ...exerciseSets, [exerciseId]: sets });
+    dispatch(setError(""));
+    scrollToBottom();
   };
 
   const saveWorkout = () => {
@@ -133,12 +158,28 @@ const WorkoutForm = () => {
     }
   }
 
+  // const handleSetChange = (exerciseId, setNumber, field, value) => {
+  //   const sets = exerciseSets[exerciseId] || [];
+  //   const updatedSets = sets.map((set) =>
+  //     set.setNumber === setNumber ? { ...set, [field]: value } : set
+  //   );
+  //   setExerciseSets({ ...exerciseSets, [exerciseId]: updatedSets });
+  // };
+
   const handleSetChange = (exerciseId, setNumber, field, value) => {
     const sets = exerciseSets[exerciseId] || [];
     const updatedSets = sets.map((set) =>
       set.setNumber === setNumber ? { ...set, [field]: value } : set
     );
     setExerciseSets({ ...exerciseSets, [exerciseId]: updatedSets });
+  
+    // Update addSetData
+    const updatedAddSetData = updatedSets.map((set) => ({
+      userExcerciseId: exerciseId,
+      weight: set.weight,
+      reps: set.reps,
+    }));
+    setAddSetData(updatedAddSetData);
   };
 
   const handleDeleteSet = (exerciseId, setNumber) => {
