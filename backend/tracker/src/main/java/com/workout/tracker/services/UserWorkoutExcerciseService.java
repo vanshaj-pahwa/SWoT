@@ -5,6 +5,7 @@ import com.workout.tracker.dto.request.WorkoutExcerciseRequestDto;
 import com.workout.tracker.entities.UserWorkoutExcercise;
 import com.workout.tracker.repositories.UserExcerciseRepository;
 import com.workout.tracker.repositories.UserWorkoutExcerciseRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -52,4 +53,18 @@ public class UserWorkoutExcerciseService {
                 .build();
     }
 
+    public void deleteSet(int userWorkoutExerciseId) {
+        try {
+            if (userWorkoutExcerciseRepository.existsById(userWorkoutExerciseId)) {
+                userWorkoutExcerciseRepository.deleteById(userWorkoutExerciseId);
+                log.info("Deleted UserWorkoutExercise with ID: {}", userWorkoutExerciseId);
+            } else {
+                log.warn("UserWorkoutExercise with ID: {} not found", userWorkoutExerciseId);
+                throw new EntityNotFoundException("UserWorkoutExercise not found with id: " + userWorkoutExerciseId);
+            }
+        } catch (Exception e) {
+            log.error("Error deleting UserWorkoutExercise with ID: {}", userWorkoutExerciseId, e);
+            throw new RuntimeException("Error deleting UserWorkoutExercise", e);
+        }
+    }
 }
