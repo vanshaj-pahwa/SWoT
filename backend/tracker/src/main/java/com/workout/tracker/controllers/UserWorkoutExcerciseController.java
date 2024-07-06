@@ -35,4 +35,14 @@ public class UserWorkoutExcerciseController {
             return ResponseEntityUtils.createErrorResponse("Error retrieving added sets.");
         }
     }
+
+    @DeleteMapping("/deleteSet/{userWorkoutExerciseId}")
+    public ResponseEntity<?> deleteExerciseSet(@PathVariable int userWorkoutExerciseId) {
+        try {
+            userWorkoutExcerciseService.deleteSet(userWorkoutExerciseId);
+            return ResponseEntityUtils.createSuccessResponse("Deleted the set successfully!", "Delete operation successful.");
+        } catch (Exception e) {
+            return ResponseEntityUtils.createErrorResponse("Error deleting exercise set.");
+        }
+    }
 }
