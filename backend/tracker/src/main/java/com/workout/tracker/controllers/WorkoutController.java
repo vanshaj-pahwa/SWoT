@@ -34,4 +34,14 @@ public class WorkoutController {
     public ResponseEntity<?> getListOfWorkouts(){
         return ResponseEntityUtils.createSuccessResponse(workoutService.getAllWorkouts(),"Successfully fetched records!");
     }
+
+    @DeleteMapping("/workout/{id}")
+    public ResponseEntity<?> deleteWorkout(@PathVariable Long id) {
+        try {
+            workoutService.deleteWorkout(id);
+            return ResponseEntityUtils.createSuccessResponse("Workout deleted successfully!", "Operation Successful!");
+        } catch (Exception e) {
+            return ResponseEntityUtils.createErrorResponse("Error deleting workout!");
+        }
+    }
 }
