@@ -1,12 +1,18 @@
 'use client'
 
-import { Search, MessageCircle, Bell, User } from 'lucide-react'
+import { Search, MessageCircle, Bell, User, Scale } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
+import { usePreferences } from '@/contexts/PreferencesContext'
 import { useRouter } from 'next/navigation'
 
 export function DashboardHeader() {
   const { user } = useAuth()
+  const { preferences, setWeightUnit } = usePreferences()
   const router = useRouter()
+
+  const toggleWeightUnit = () => {
+    setWeightUnit(preferences.weightUnit === 'lbs' ? 'kg' : 'lbs')
+  }
 
   return (
     <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-40">
@@ -28,6 +34,16 @@ export function DashboardHeader() {
 
         {/* Right Section */}
         <div className="flex items-center gap-2 md:gap-4 md:ml-6">
+          {/* Weight Unit Toggle */}
+          <button
+            onClick={toggleWeightUnit}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors"
+            title="Toggle weight unit"
+          >
+            <Scale className="h-4 w-4 text-slate-600" />
+            <span className="text-sm font-semibold text-gray-900">{preferences.weightUnit}</span>
+          </button>
+
           {/* Icons - Hidden on mobile */}
           <button className="hidden md:block p-2 hover:bg-gray-100 rounded-full transition-colors relative">
             <MessageCircle className="h-5 w-5 text-gray-600" />
@@ -38,7 +54,7 @@ export function DashboardHeader() {
           </button>
 
           {/* User Profile */}
-          <button 
+          <button
             onClick={() => router.push('/profile')}
             className="flex items-center gap-3 pl-2 md:pl-3 pr-2 md:pr-4 py-2 hover:bg-gray-100 rounded-full transition-colors"
           >

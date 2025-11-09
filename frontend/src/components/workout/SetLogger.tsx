@@ -5,6 +5,7 @@ import { Plus, Minus, Trash2, Timer, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { usePreferences } from '@/contexts/PreferencesContext'
 import type { Set as WorkoutSet } from '@/types'
 
 interface SetLoggerProps {
@@ -34,6 +35,7 @@ export function SetLogger({
   isSuperset = false,
   isDropset = false
 }: SetLoggerProps) {
+  const { formatWeight, preferences } = usePreferences()
   const [newSet, setNewSet] = useState<SetInputs>({
     reps: '',
     weight: '',
@@ -47,11 +49,17 @@ export function SetLogger({
   const handleAddSet = () => {
     if (!newSet.reps || !newSet.weight) return
 
+    // Convert weight to lbs for storage if user is using kg
+    let weightInLbs = parseFloat(newSet.weight)
+    if (preferences.weightUnit === 'kg') {
+      weightInLbs = weightInLbs / 0.453592 // Convert kg to lbs
+    }
+
     const setToAdd: Omit<WorkoutSet, 'id'> = {
       exerciseId: '', // Will be set by parent
       setOrder: sets.length + 1,
       reps: parseInt(newSet.reps),
-      weight: parseFloat(newSet.weight),
+      weight: weightInLbs,
       isWarmup: newSet.isWarmup,
       isDropset: newSet.isDropset || isDropset,
       restSeconds: newSet.restSeconds ? parseInt(newSet.restSeconds) : undefined
@@ -75,7 +83,7 @@ export function SetLogger({
 
   const startRestTimer = (seconds: number) => {
     if (restInterval) clearInterval(restInterval)
-    
+
     setRestTimer(seconds)
     const interval = setInterval(() => {
       setRestTimer(prev => {
@@ -87,7 +95,7 @@ export function SetLogger({
         return prev - 1
       })
     }, 1000)
-    
+
     setRestInterval(interval)
   }
 
@@ -153,7 +161,7 @@ export function SetLogger({
                   </span>
                   <div className="flex items-center gap-2">
                     <span className="text-sm">
-                      {set.reps} reps × {set.weight} lbs
+                      {set.reps} reps × {formatWeight(set.weight)}
                     </span>
                     {set.isWarmup && (
                       <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
@@ -206,7 +214,7 @@ export function SetLogger({
             <Plus className="h-4 w-4" />
             Add Set {sets.length + 1}
           </h4>
-          
+
           {/* Reps Input */}
           <div className="space-y-2">
             <label className="text-sm font-medium">Reps</label>
@@ -239,19 +247,19 @@ export function SetLogger({
 
           {/* Weight Input */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Weight (lbs)</label>
+            <label className="text-sm font-medium">Weight ({preferences.weightUnit})</label>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => incrementValue('weight', -2.5)}
+                onClick={() => incrementValue('weight', preferences.weightUnit === 'kg' ? -1.25 : -2.5)}
                 disabled={!newSet.weight || parseFloat(newSet.weight) <= 0}
               >
                 <Minus className="h-4 w-4" />
               </Button>
               <Input
                 type="number"
-                step="0.5"
+                step={preferences.weightUnit === 'kg' ? '0.25' : '0.5'}
                 value={newSet.weight}
                 onChange={(e) => setNewSet(prev => ({ ...prev, weight: e.target.value }))}
                 placeholder="0"
@@ -261,7 +269,7 @@ export function SetLogger({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => incrementValue('weight', 2.5)}
+                onClick={() => incrementValue('weight', preferences.weightUnit === 'kg' ? 1.25 : 2.5)}
               >
                 <Plus className="h-4 w-4" />
               </Button>

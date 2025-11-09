@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Play, Dumbbell, Activity } from 'lucide-react'
+import { Play, Activity, Plus, Calendar } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { WorkoutLogger, WorkoutHistory, WorkoutDetail, WorkoutStarter } from '@/components/workout'
@@ -9,6 +9,9 @@ import { DashboardLayout } from '@/components/shared/DashboardLayout'
 import { DashboardService, type DashboardStats } from '@/services/dashboard'
 import { useWorkout } from '@/hooks/useWorkout'
 import { useAuth } from '@/hooks/useAuth'
+import { useRoutine } from '@/hooks/useRoutine'
+import { usePreferences } from '@/contexts/PreferencesContext'
+import { useRouter } from 'next/navigation'
 import type { Workout } from '@/types'
 
 type ViewMode = 'dashboard' | 'start-workout' | 'active-workout' | 'history' | 'workout-detail'
@@ -20,6 +23,9 @@ export default function DashboardPage() {
   const [loadingStats, setLoadingStats] = useState(true)
   const { currentWorkout, isActive, error } = useWorkout()
   const { user, isAuthenticated } = useAuth()
+  const { userRoutines, loading: routinesLoading, loadUserRoutines } = useRoutine()
+  const { formatWeight, preferences } = usePreferences()
+  const router = useRouter()
 
   // Get greeting based on time of day
   const getGreeting = () => {
@@ -33,8 +39,9 @@ export default function DashboardPage() {
   useEffect(() => {
     if (user?.id) {
       loadDashboardStats()
+      loadUserRoutines()
     }
-  }, [user?.id])
+  }, [user?.id, loadUserRoutines])
 
   const loadDashboardStats = async () => {
     if (!user?.id) return
@@ -93,7 +100,7 @@ export default function DashboardPage() {
             <p className="text-gray-600 mb-6">
               You need to be signed in to access your workout dashboard.
             </p>
-            <Button asChild className="bg-gradient-to-r from-slate-500 to-blue-600 hover:from-slate-600 hover:to-blue-700 text-white">
+            <Button asChild className="bg-slate-600 hover:bg-slate-700 text-white">
               <a href="/auth/login">Sign In</a>
             </Button>
           </CardContent>
@@ -106,13 +113,31 @@ export default function DashboardPage() {
     <DashboardLayout>
       <div className="max-w-7xl mx-auto">
         {/* Greeting Header */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-1">
-            {getGreeting()} 👋
-          </h1>
-          <p className="text-gray-600">
-            Welcome back, {user?.name || 'Athlete'}!
-          </p>
+        <div className="mb-6 flex items-start justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-1">
+              {getGreeting()} 👋
+            </h1>
+            <p className="text-gray-600">
+              Welcome back, {user?.name || 'Athlete'}!
+            </p>
+          </div>
+          {/* <Button
+            variant="outline"
+            onClick={async () => {
+              if (!user?.id) return
+              try {
+                const { ExportService } = await import('@/services/export')
+                await ExportService.downloadProgressSnapshot(user.id, 30)
+              } catch (error) {
+                console.error('Export failed:', error)
+              }
+            }}
+            className="rounded-xl hidden md:flex"
+          >
+            <Play className="h-4 w-4 mr-2" />
+            Download Progress
+          </Button> */}
         </div>
 
         {/* Error Display */}
@@ -123,6 +148,72 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         )}
+
+        {/* My Routines Section */}
+        <Card className="mb-6 border-0 bg-gradient-to-br from-purple-50 to-indigo-50 shadow-lg">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <Calendar className="h-6 w-6 text-purple-600" />
+                <h2 className="text-xl font-semibold text-gray-900">My Routines</h2>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => router.push('/routines')}
+                  className="rounded-xl"
+                >
+                  View All
+                </Button>
+                <Button
+                  onClick={() => router.push('/routines')}
+                  className="bg-slate-600 hover:bg-slate-700 text-white rounded-xl"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Routine
+                </Button>
+              </div>
+            </div>
+
+            {routinesLoading ? (
+              <div className="text-center text-gray-400 py-8">Loading routines...</div>
+            ) : userRoutines.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {userRoutines.slice(0, 3).map((routine) => (
+                  <div
+                    key={routine.id}
+                    className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                    onClick={() => router.push('/routines')}
+                  >
+                    <h3 className="font-semibold text-gray-900 mb-2">{routine.name}</h3>
+                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                      {routine.description || 'No description'}
+                    </p>
+                    <div className="flex items-center justify-between text-xs text-gray-500">
+                      <span>{routine.exercises.length} exercises</span>
+                      {routine.isPublic && (
+                        <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded-full">
+                          Public
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-600 mb-4">You haven't created any routines yet</p>
+                <Button
+                  onClick={() => router.push('/routines')}
+                  className="bg-slate-600 hover:bg-slate-700 text-white rounded-xl"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Your First Routine
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Main Content */}
         {viewMode === 'dashboard' && (
@@ -177,8 +268,8 @@ export default function DashboardPage() {
                   <CardContent className="p-6">
                     <div className="text-sm text-gray-600 mb-1">Volume</div>
                     <div className="text-3xl font-bold text-gray-900">
-                      {loadingStats ? '...' : Math.round(stats?.totalVolumeThisWeek || 0)}
-                      <span className="text-lg text-gray-500">lbs</span>
+                      {loadingStats ? '...' : formatWeight(stats?.totalVolumeThisWeek || 0, false)}
+                      <span className="text-lg text-gray-500">{preferences.weightUnit}</span>
                     </div>
                   </CardContent>
                 </Card>

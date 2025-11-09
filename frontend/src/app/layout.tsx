@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { PreferencesProvider } from "@/contexts/PreferencesContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -24,7 +25,9 @@ export default function RootLayout({
       <body className={`${inter.variable} font-sans antialiased`}>
         <ErrorBoundary>
           <AuthProvider>
-            {children}
+            <PreferencesProvider>
+              {children}
+            </PreferencesProvider>
           </AuthProvider>
         </ErrorBoundary>
       </body>

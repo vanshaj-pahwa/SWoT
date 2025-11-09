@@ -10,9 +10,11 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { ExerciseSelector } from '@/components/workout/ExerciseSelector'
+import { ExerciseDBBrowser } from '@/components/exercises'
 import { RoutineSharing } from './RoutineSharing'
 import { useRoutine } from '@/hooks/useRoutine'
 import type { Routine, RoutineExercise, ExerciseDefinition } from '@/types'
+import type { ExerciseDBExercise } from '@/services/exercisedb'
 import { RoutineExerciseList } from './RoutineExerciseList'
 
 const routineSchema = z.object({
@@ -30,6 +32,7 @@ interface RoutineBuilderProps {
 
 export function RoutineBuilder({ routine, onSave, onCancel }: RoutineBuilderProps) {
     const [showExerciseSelector, setShowExerciseSelector] = useState(false)
+    const [showExerciseDB, setShowExerciseDB] = useState(false)
     const [selectedCategory, setSelectedCategory] = useState<string>('')
 
     const {
@@ -107,6 +110,22 @@ export function RoutineBuilder({ routine, onSave, onCancel }: RoutineBuilderProp
         setShowExerciseSelector(false)
     }
 
+    const handleAddExerciseFromDB = (exercise: ExerciseDBExercise) => {
+        if (!currentRoutine) return
+
+        const newExercise: RoutineExercise = {
+            exerciseName: exercise.name,
+            order: currentRoutine.exercises.length + 1,
+            targetSets: 3,
+            targetReps: 10,
+            targetWeight: undefined,
+            notes: `Type: ${exercise.exerciseType} | Equipment: ${exercise.equipments.join(', ')}`
+        }
+
+        addExerciseToRoutine(newExercise)
+        setShowExerciseDB(false)
+    }
+
     const handleSave = async () => {
         if (!currentRoutine) return
 
@@ -131,6 +150,27 @@ export function RoutineBuilder({ routine, onSave, onCancel }: RoutineBuilderProp
         } catch (err) {
             // Error is handled by the hook
         }
+    }
+
+    if (showExerciseDB) {
+        return (
+            <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                    <Button
+                        variant="outline"
+                        onClick={() => setShowExerciseDB(false)}
+                        className="rounded-xl"
+                    >
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Back to Routine
+                    </Button>
+                    <h2 className="text-2xl font-bold text-gray-900">Browse Exercise Database</h2>
+                    <div></div>
+                </div>
+
+                <ExerciseDBBrowser onSelectExercise={handleAddExerciseFromDB} />
+            </div>
+        )
     }
 
     if (showExerciseSelector) {
@@ -172,7 +212,7 @@ export function RoutineBuilder({ routine, onSave, onCancel }: RoutineBuilderProp
                     <Button
                         onClick={handleSave}
                         disabled={saving || !currentRoutine?.name}
-                        className="bg-gradient-to-r from-slate-500 to-blue-600 hover:from-slate-600 hover:to-blue-700 text-white rounded-xl"
+                        className="bg-slate-600 hover:bg-slate-700 text-white rounded-xl"
                     >
                         <Save className="h-4 w-4 mr-2" />
                         {saving ? 'Saving...' : 'Save Routine'}
@@ -240,14 +280,25 @@ export function RoutineBuilder({ routine, onSave, onCancel }: RoutineBuilderProp
                 <CardHeader>
                     <CardTitle className="flex items-center justify-between text-gray-900">
                         <span>Exercises ({currentRoutine?.exercises.length || 0})</span>
-                        <Button
-                            onClick={() => setShowExerciseSelector(true)}
-                            size="sm"
-                            className="bg-gradient-to-r from-slate-500 to-blue-600 hover:from-slate-600 hover:to-blue-700 text-white rounded-xl"
-                        >
-                            <Plus className="h-4 w-4 mr-2" />
-                            Add Exercise
-                        </Button>
+                        <div className="flex gap-2">
+                            <Button
+                                onClick={() => setShowExerciseDB(true)}
+                                size="sm"
+                                variant="outline"
+                                className="rounded-xl"
+                            >
+                                <Plus className="h-4 w-4 mr-2" />
+                                Browse Database
+                            </Button>
+                            <Button
+                                onClick={() => setShowExerciseSelector(true)}
+                                size="sm"
+                                className="bg-slate-600 hover:bg-slate-700 text-white rounded-xl"
+                            >
+                                <Plus className="h-4 w-4 mr-2" />
+                                Quick Add
+                            </Button>
+                        </div>
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -262,13 +313,23 @@ export function RoutineBuilder({ routine, onSave, onCancel }: RoutineBuilderProp
                             <p className="text-gray-600 mb-4">
                                 Add exercises to build your routine
                             </p>
-                            <Button 
-                                onClick={() => setShowExerciseSelector(true)}
-                                className="bg-gradient-to-r from-slate-500 to-blue-600 hover:from-slate-600 hover:to-blue-700 text-white rounded-xl"
-                            >
-                                <Plus className="h-4 w-4 mr-2" />
-                                Add First Exercise
-                            </Button>
+                            <div className="flex gap-2 justify-center">
+                                <Button 
+                                    onClick={() => setShowExerciseDB(true)}
+                                    variant="outline"
+                                    className="rounded-xl"
+                                >
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Browse Database
+                                </Button>
+                                <Button 
+                                    onClick={() => setShowExerciseSelector(true)}
+                                    className="bg-slate-600 hover:bg-slate-700 text-white rounded-xl"
+                                >
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Quick Add
+                                </Button>
+                            </div>
                         </div>
                     ) : (
                         <RoutineExerciseList

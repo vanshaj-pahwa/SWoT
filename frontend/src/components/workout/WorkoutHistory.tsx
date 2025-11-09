@@ -5,8 +5,10 @@ import { Calendar, Clock, Dumbbell, Trash2, Eye, Filter } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { ConfirmModal } from '@/components/ui/confirm-modal'
 import { WorkoutService } from '@/services/workout'
 import { useAuth } from '@/hooks/useAuth'
+import { usePreferences } from '@/contexts/PreferencesContext'
 import type { Workout } from '@/types'
 
 interface WorkoutHistoryProps {
@@ -21,12 +23,15 @@ export function WorkoutHistory({
     limit
 }: WorkoutHistoryProps) {
     const { user } = useAuth()
+    const { formatWeight } = usePreferences()
     const [workouts, setWorkouts] = useState<Workout[]>([])
     const [filteredWorkouts, setFilteredWorkouts] = useState<Workout[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [searchTerm, setSearchTerm] = useState('')
     const [dateFilter, setDateFilter] = useState('')
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+    const [workoutToDelete, setWorkoutToDelete] = useState<Workout | null>(null)
 
     useEffect(() => {
         if (user) {
@@ -75,14 +80,18 @@ export function WorkoutHistory({
         setFilteredWorkouts(filtered)
     }
 
-    const handleDeleteWorkout = async (workoutId: string) => {
-        if (!confirm('Are you sure you want to delete this workout? This action cannot be undone.')) {
-            return
-        }
+    const handleDeleteWorkout = (workout: Workout) => {
+        setWorkoutToDelete(workout)
+        setDeleteConfirmOpen(true)
+    }
+
+    const confirmDelete = async () => {
+        if (!workoutToDelete) return
 
         try {
-            await WorkoutService.deleteWorkout(workoutId)
-            setWorkouts(prev => prev.filter(w => w.id !== workoutId))
+            await WorkoutService.deleteWorkout(workoutToDelete.id)
+            setWorkouts(prev => prev.filter(w => w.id !== workoutToDelete.id))
+            setWorkoutToDelete(null)
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to delete workout')
         }
@@ -208,7 +217,7 @@ export function WorkoutHistory({
                                         <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
                                             <span>{workout.exercises.length} exercise{workout.exercises.length !== 1 ? 's' : ''}</span>
                                             <span>{calculateTotalSets(workout)} set{calculateTotalSets(workout) !== 1 ? 's' : ''}</span>
-                                            <span>{workout.totalVolume.toLocaleString()} lbs total</span>
+                                            <span>{formatWeight(workout.totalVolume)} total</span>
                                         </div>
 
                                         {workout.exercises.length > 0 && (
@@ -253,7 +262,7 @@ export function WorkoutHistory({
                                         <Button
                                             variant="ghost"
                                             size="sm"
-                                            onClick={() => handleDeleteWorkout(workout.id)}
+                                            onClick={() => handleDeleteWorkout(workout)}
                                             className="text-red-600 hover:text-red-700"
                                         >
                                             <Trash2 className="h-4 w-4" />
@@ -264,6 +273,21 @@ export function WorkoutHistory({
                         ))
                     )}
                 </div>
+
+                {/* Delete Confirmation Modal */}
+                <ConfirmModal
+                    isOpen={deleteConfirmOpen}
+                    onClose={() => {
+                        setDeleteConfirmOpen(false)
+                        setWorkoutToDelete(null)
+                    }}
+                    onConfirm={confirmDelete}
+                    title="Delete Workout"
+                    message={`Are you sure you want to delete this workout? This action cannot be undone.`}
+                    confirmText="Delete"
+                    cancelText="Cancel"
+                    variant="danger"
+                />
             </CardContent>
         </Card>
     )

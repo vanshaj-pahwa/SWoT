@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Play, Edit, Copy, Trash2, Users, Lock, MoreVertical } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { usePreferences } from '@/contexts/PreferencesContext'
 import type { Routine } from '@/types'
 
 interface RoutineListProps {
@@ -33,6 +34,7 @@ function RoutineCard({
     onDelete,
     showActions = true
 }: RoutineCardProps) {
+    const { formatWeight } = usePreferences()
     const [showMenu, setShowMenu] = useState(false)
 
     return (
@@ -123,11 +125,18 @@ function RoutineCard({
                     {routine.exercises.length > 0 && (
                         <div className="space-y-1">
                             {routine.exercises.slice(0, 3).map((exercise, index) => (
-                                <div key={index} className="text-sm text-gray-700 flex items-center justify-between">
-                                    <span>{index + 1}. {exercise.exerciseName}</span>
-                                    <div className="text-xs text-gray-500">
+                                <div key={index} className="text-sm text-gray-700">
+                                    <div className="flex items-start justify-between">
+                                        <span className="flex-1">{index + 1}. {exercise.exerciseName}</span>
+                                    </div>
+                                    <div className="text-xs text-gray-500 ml-4">
                                         {exercise.targetSets && exercise.targetReps && (
-                                            <span>{exercise.targetSets} × {exercise.targetReps}</span>
+                                            <>
+                                                {exercise.targetSets} × {exercise.targetReps} reps
+                                                {exercise.targetWeight && (
+                                                    <> × {formatWeight(exercise.targetWeight)}</>
+                                                )}
+                                            </>
                                         )}
                                     </div>
                                 </div>
@@ -147,7 +156,7 @@ function RoutineCard({
                     {onStartWorkout && (
                         <Button
                             onClick={() => onStartWorkout(routine)}
-                            className="flex-1 bg-gradient-to-r from-slate-500 to-blue-600 hover:from-slate-600 hover:to-blue-700 text-white rounded-xl"
+                            className="flex-1 bg-slate-600 hover:bg-slate-700 text-white rounded-xl"
                             disabled={routine.exercises.length === 0}
                         >
                             <Play className="h-4 w-4 mr-2" />

@@ -4,10 +4,12 @@ import { useState, useEffect } from 'react'
 import { Plus, Search, BookOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { ConfirmModal } from '@/components/ui/confirm-modal'
 import { DashboardLayout } from '@/components/shared/DashboardLayout'
 import { RoutineBuilder, RoutineList, RoutineDiscovery } from '@/components/routines'
 import { useRoutine } from '@/hooks/useRoutine'
 import { useWorkout } from '@/hooks/useWorkout'
+import { useAuth } from '@/hooks/useAuth'
 import { useRouter } from 'next/navigation'
 import type { Routine } from '@/types'
 
@@ -16,8 +18,10 @@ type ViewMode = 'list' | 'create' | 'edit' | 'discover'
 export default function RoutinesPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('list')
   const [editingRoutine, setEditingRoutine] = useState<Routine | null>(null)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [routineToDelete, setRoutineToDelete] = useState<Routine | null>(null)
   const router = useRouter()
-  
+
   const {
     userRoutines,
     loading,
@@ -29,6 +33,7 @@ export default function RoutinesPage() {
   } = useRoutine()
 
   const { startWorkout } = useWorkout()
+  const { user } = useAuth()
 
   useEffect(() => {
     loadUserRoutines()
@@ -76,13 +81,19 @@ export default function RoutinesPage() {
     }
   }
 
-  const handleDelete = async (routine: Routine) => {
-    if (window.confirm(`Are you sure you want to delete "${routine.name}"? This action cannot be undone.`)) {
+  const handleDelete = (routine: Routine) => {
+    setRoutineToDelete(routine)
+    setDeleteConfirmOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    if (routineToDelete) {
       try {
-        await deleteRoutine(routine.id)
+        await deleteRoutine(routineToDelete.id)
       } catch (err) {
         // Error handled by hook
       }
+      setRoutineToDelete(null)
     }
   }
 
@@ -141,15 +152,35 @@ export default function RoutinesPage() {
           <div className="flex gap-2">
             <Button
               variant="outline"
+              onClick={async () => {
+                if (!user?.id) return
+                try {
+                  const { ExportService } = await import('@/services/export')
+                  const csv = await ExportService.exportRoutinesToCSV(user.id)
+                  const timestamp = new Date().toISOString().split('T')[0]
+                  ExportService.downloadCSV(csv, `swot-routines-${timestamp}.csv`)
+                } catch (error) {
+                  console.error('Export failed:', error)
+                }
+              }}
+              className="rounded-xl hidden md:flex"
+            >
+              <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Export
+            </Button>
+            <Button
+              variant="outline"
               onClick={() => setViewMode('discover')}
               className="rounded-xl"
             >
               <Search className="h-4 w-4 mr-2" />
               Discover
             </Button>
-            <Button 
+            <Button
               onClick={handleCreateNew}
-              className="bg-gradient-to-r from-slate-500 to-blue-600 hover:from-slate-600 hover:to-blue-700 text-white rounded-xl"
+              className="bg-slate-600 hover:bg-slate-700 text-white rounded-xl"
             >
               <Plus className="h-4 w-4 mr-2" />
               New Routine
@@ -177,13 +208,13 @@ export default function RoutinesPage() {
                     Get started with routines
                   </h3>
                   <p className="text-gray-700 mb-4">
-                    Routines help you plan and structure your workouts. Create your first routine 
+                    Routines help you plan and structure your workouts. Create your first routine
                     or discover popular ones from the community.
                   </p>
                   <div className="flex gap-2">
-                    <Button 
+                    <Button
                       onClick={handleCreateNew}
-                      className="bg-gradient-to-r from-slate-500 to-blue-600 hover:from-slate-600 hover:to-blue-700 text-white rounded-xl"
+                      className="bg-slate-600 hover:bg-slate-700 text-white rounded-xl"
                     >
                       <Plus className="h-4 w-4 mr-2" />
                       Create First Routine
@@ -213,21 +244,20 @@ export default function RoutinesPage() {
           onDelete={handleDelete}
         />
 
-        {/* Stats */}
-        {!loading && userRoutines.length > 0 && (
-          <Card className="mt-6 border-0 bg-white/80 backdrop-blur shadow-lg">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between text-sm text-gray-600">
-              <span>
-                {userRoutines.length} routine{userRoutines.length !== 1 ? 's' : ''} created
-              </span>
-              <span>
-                {userRoutines.reduce((total, routine) => total + routine.exercises.length, 0)} total exercises
-              </span>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        {/* Delete Confirmation Modal */}
+        <ConfirmModal
+          isOpen={deleteConfirmOpen}
+          onClose={() => {
+            setDeleteConfirmOpen(false)
+            setRoutineToDelete(null)
+          }}
+          onConfirm={confirmDelete}
+          title="Delete Routine"
+          message={`Are you sure you want to delete "${routineToDelete?.name}"? This action cannot be undone.`}
+          confirmText="Delete"
+          cancelText="Cancel"
+          variant="danger"
+        />
       </div>
     </DashboardLayout>
   )

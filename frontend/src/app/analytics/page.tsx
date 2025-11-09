@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
+import { Button } from '@/components/ui/button'
 import { AnalyticsService } from '@/services/analytics'
 import { WorkoutService } from '@/services/workout'
 import { DashboardLayout } from '@/components/shared/DashboardLayout'
@@ -130,7 +131,7 @@ export default function AnalyticsPage() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h1 className="text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
           
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-2">
             <ExerciseSelector
               exercises={availableExercises}
               selectedExercise={selectedExercise}
@@ -140,7 +141,7 @@ export default function AnalyticsPage() {
             <select
               value={timeRange}
               onChange={(e) => setTimeRange(e.target.value as TimeRange)}
-              className="px-3 py-2 border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300"
+              className="px-3 py-2 border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-300"
             >
               <option value="7d">Last 7 days</option>
               <option value="30d">Last 30 days</option>
@@ -148,6 +149,27 @@ export default function AnalyticsPage() {
               <option value="1y">Last year</option>
               <option value="all">All time</option>
             </select>
+
+            <Button
+              variant="outline"
+              onClick={async () => {
+                if (!user?.id) return
+                try {
+                  const { ExportService } = await import('@/services/export')
+                  const csv = await ExportService.exportAnalyticsToCSV(user.id, {})
+                  const timestamp = new Date().toISOString().split('T')[0]
+                  ExportService.downloadCSV(csv, `swot-analytics-${timestamp}.csv`)
+                } catch (error) {
+                  console.error('Export failed:', error)
+                }
+              }}
+              className="rounded-xl whitespace-nowrap"
+            >
+              <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Export
+            </Button>
           </div>
         </div>
 

@@ -2,14 +2,15 @@
 
 import { useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import Image from 'next/image'
 import {
   LayoutDashboard,
   TrendingUp,
   Trophy,
   Dumbbell,
+  BookOpen,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Settings
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -17,7 +18,12 @@ const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
   { icon: TrendingUp, label: 'Progress', href: '/analytics' },
   { icon: Dumbbell, label: 'Routines', href: '/routines' },
+  { icon: BookOpen, label: 'Exercises', href: '/exercises' },
   { icon: Trophy, label: 'Achievements', href: '/achievements' },
+]
+
+const bottomMenuItems = [
+  { icon: Settings, label: 'Settings', href: '/settings' },
 ]
 
 export function Sidebar() {
@@ -95,7 +101,7 @@ export function Sidebar() {
                 className={cn(
                   "w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all group relative cursor-pointer",
                   isActive
-                    ? "bg-gradient-to-r from-slate-100 to-blue-100 text-gray-900"
+                    ? "bg-slate-100 text-gray-900"
                     : "text-gray-600 hover:bg-gray-50"
                 )}
               >
@@ -115,12 +121,31 @@ export function Sidebar() {
 
         {/* Bottom Section */}
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
-          <div className={cn(
-            "text-xs text-gray-500",
-            collapsed ? "text-center" : ""
-          )}>
-            {collapsed ? "M" : "Manage"}
-          </div>
+          {bottomMenuItems.map((item) => {
+            const Icon = item.icon
+            const isActive = pathname === item.href
+
+            return (
+              <button
+                key={item.href}
+                onClick={() => router.push(item.href)}
+                className={cn(
+                  "w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all group relative cursor-pointer",
+                  isActive
+                    ? "bg-slate-100 text-gray-900"
+                    : "text-gray-600 hover:bg-gray-50"
+                )}
+              >
+                <Icon className={cn(
+                  "h-5 w-5 flex-shrink-0",
+                  isActive ? "text-slate-600" : "text-gray-500 group-hover:text-gray-700"
+                )} />
+                {!collapsed && (
+                  <span className="font-medium">{item.label}</span>
+                )}
+              </button>
+            )
+          })}
         </div>
       </div>
     </>

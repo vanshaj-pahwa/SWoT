@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { WorkoutService } from '@/services/workout'
 import { useAuth } from '@/hooks/useAuth'
+import { usePreferences } from '@/contexts/PreferencesContext'
 import type { Workout } from '@/types'
 
 interface WorkoutDetailProps {
@@ -16,6 +17,7 @@ interface WorkoutDetailProps {
 
 export function WorkoutDetail({ workoutId, onBack, onEdit }: WorkoutDetailProps) {
   const { user } = useAuth()
+  const { formatWeight, preferences } = usePreferences()
   const [workout, setWorkout] = useState<Workout | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -152,9 +154,9 @@ export function WorkoutDetail({ workoutId, onBack, onEdit }: WorkoutDetailProps)
             </div>
             <div className="text-center p-3 bg-gray-50 rounded-lg">
               <div className="text-2xl font-bold text-purple-600">
-                {workout.totalVolume.toLocaleString()}
+                {formatWeight(workout.totalVolume, false)}
               </div>
-              <div className="text-sm text-gray-600">Total Volume (lbs)</div>
+              <div className="text-sm text-gray-600">Total Volume ({preferences.weightUnit})</div>
             </div>
             <div className="text-center p-3 bg-gray-50 rounded-lg">
               <div className="text-2xl font-bold text-orange-600">
@@ -192,7 +194,7 @@ export function WorkoutDetail({ workoutId, onBack, onEdit }: WorkoutDetailProps)
                   <span>{exercise.exerciseName}</span>
                 </div>
                 <div className="text-sm text-gray-500">
-                  {calculateExerciseVolume(exercise).toLocaleString()} lbs
+                  {formatWeight(calculateExerciseVolume(exercise))}
                 </div>
               </CardTitle>
             </CardHeader>
@@ -209,7 +211,7 @@ export function WorkoutDetail({ workoutId, onBack, onEdit }: WorkoutDetailProps)
                   <div key={set.id} className="grid grid-cols-4 gap-4 text-sm py-2">
                     <span className="font-medium">{setIndex + 1}</span>
                     <span>{set.reps}</span>
-                    <span>{set.weight} lbs</span>
+                    <span>{formatWeight(set.weight)}</span>
                     <div className="flex gap-1">
                       {set.isWarmup && (
                         <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">

@@ -5,6 +5,7 @@ import { GripVertical, Trash2, Edit3, Target } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
+import { usePreferences } from '@/contexts/PreferencesContext'
 import type { RoutineExercise } from '@/types'
 
 interface RoutineExerciseListProps {
@@ -37,11 +38,17 @@ function ExerciseItem({
   isDragging,
   dragOverIndex
 }: ExerciseItemProps) {
+  const { formatWeight, preferences } = usePreferences()
   const [isEditing, setIsEditing] = useState(false)
   const [editedExercise, setEditedExercise] = useState(exercise)
 
   const handleSave = () => {
-    onUpdate(editedExercise)
+    // Convert weight to lbs for storage if user is using kg
+    let exerciseToSave = { ...editedExercise }
+    if (exerciseToSave.targetWeight && preferences.weightUnit === 'kg') {
+      exerciseToSave.targetWeight = exerciseToSave.targetWeight / 0.453592 // Convert kg to lbs
+    }
+    onUpdate(exerciseToSave)
     setIsEditing(false)
   }
 
@@ -124,11 +131,11 @@ function ExerciseItem({
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-gray-600">Target Weight</label>
+                    <label className="text-xs text-gray-600">Target Weight ({preferences.weightUnit})</label>
                     <Input
                       type="number"
                       min="0"
-                      step="0.5"
+                      step={preferences.weightUnit === 'kg' ? '0.25' : '0.5'}
                       value={editedExercise.targetWeight || ''}
                       onChange={(e) => setEditedExercise({
                         ...editedExercise,
@@ -159,7 +166,7 @@ function ExerciseItem({
                   <Button
                     size="sm"
                     onClick={handleSave}
-                    className="bg-gradient-to-r from-slate-500 to-blue-600 hover:from-slate-600 hover:to-blue-700 text-white rounded-xl"
+                    className="bg-slate-600 hover:bg-slate-700 text-white rounded-xl"
                   >
                     Save
                   </Button>
@@ -179,7 +186,15 @@ function ExerciseItem({
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => setIsEditing(true)}
+                      onClick={() => {
+                        // Convert weight to user's preferred unit for editing
+                        let exerciseForEdit = { ...exercise }
+                        if (exerciseForEdit.targetWeight && preferences.weightUnit === 'kg') {
+                          exerciseForEdit.targetWeight = exerciseForEdit.targetWeight * 0.453592 // Convert lbs to kg
+                        }
+                        setEditedExercise(exerciseForEdit)
+                        setIsEditing(true)
+                      }}
                       className="hover:bg-slate-50 text-gray-600 hover:text-slate-700"
                     >
                       <Edit3 className="h-4 w-4" />
@@ -207,7 +222,7 @@ function ExerciseItem({
                     <span>• {exercise.targetReps} reps</span>
                   )}
                   {exercise.targetWeight && (
-                    <span>• {exercise.targetWeight} lbs</span>
+                    <span>• {formatWeight(exercise.targetWeight)}</span>
                   )}
                 </div>
 
