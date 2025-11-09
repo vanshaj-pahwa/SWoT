@@ -36,11 +36,11 @@ function RoutineCard({
     const [showMenu, setShowMenu] = useState(false)
 
     return (
-        <Card className="hover:shadow-md transition-shadow duration-200">
+        <Card className="border-0 bg-white/80 backdrop-blur shadow-lg hover:shadow-xl transition-all duration-200">
             <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                     <div className="flex-1">
-                        <CardTitle className="text-lg flex items-center gap-2">
+                        <CardTitle className="text-lg flex items-center gap-2 text-gray-900">
                             {routine.name}
                             {routine.isPublic ? (
                                 <span title="Public routine">
@@ -69,10 +69,10 @@ function RoutineCard({
                             </Button>
 
                             {showMenu && (
-                                <div className="absolute right-0 top-8 bg-white border rounded-md shadow-lg z-10 min-w-[120px]">
+                                <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-xl shadow-lg z-10 min-w-[120px] overflow-hidden">
                                     {onEdit && (
                                         <button
-                                            className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                                            className="w-full px-3 py-2 text-left text-sm hover:bg-slate-50 flex items-center gap-2 text-gray-700 cursor-pointer"
                                             onClick={() => {
                                                 onEdit(routine)
                                                 setShowMenu(false)
@@ -84,7 +84,7 @@ function RoutineCard({
                                     )}
                                     {onClone && (
                                         <button
-                                            className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                                            className="w-full px-3 py-2 text-left text-sm hover:bg-slate-50 flex items-center gap-2 text-gray-700 cursor-pointer"
                                             onClick={() => {
                                                 onClone(routine)
                                                 setShowMenu(false)
@@ -96,7 +96,7 @@ function RoutineCard({
                                     )}
                                     {onDelete && (
                                         <button
-                                            className="w-full px-3 py-2 text-left text-sm hover:bg-red-50 text-red-600 flex items-center gap-2"
+                                            className="w-full px-3 py-2 text-left text-sm hover:bg-red-50 text-red-600 flex items-center gap-2 cursor-pointer"
                                             onClick={() => {
                                                 onDelete(routine)
                                                 setShowMenu(false)
@@ -147,7 +147,7 @@ function RoutineCard({
                     {onStartWorkout && (
                         <Button
                             onClick={() => onStartWorkout(routine)}
-                            className="flex-1"
+                            className="flex-1 bg-gradient-to-r from-slate-500 to-blue-600 hover:from-slate-600 hover:to-blue-700 text-white rounded-xl"
                             disabled={routine.exercises.length === 0}
                         >
                             <Play className="h-4 w-4 mr-2" />
@@ -159,6 +159,7 @@ function RoutineCard({
                         <Button
                             variant="outline"
                             onClick={() => onEdit(routine)}
+                            className="rounded-xl border-gray-200 hover:bg-slate-50"
                         >
                             <Edit className="h-4 w-4" />
                         </Button>
@@ -182,16 +183,16 @@ export function RoutineList({
         return (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {[...Array(6)].map((_, i) => (
-                    <Card key={i} className="animate-pulse">
+                    <Card key={i} className="animate-pulse border-0 bg-white/80 backdrop-blur shadow-lg">
                         <CardHeader>
-                            <div className="h-6 bg-gray-200 rounded w-3/4"></div>
-                            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                            <div className="h-6 bg-slate-100 rounded w-3/4"></div>
+                            <div className="h-4 bg-slate-100 rounded w-1/2"></div>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-2">
-                                <div className="h-4 bg-gray-200 rounded"></div>
-                                <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-                                <div className="h-8 bg-gray-200 rounded mt-4"></div>
+                                <div className="h-4 bg-slate-100 rounded"></div>
+                                <div className="h-4 bg-slate-100 rounded w-2/3"></div>
+                                <div className="h-8 bg-slate-100 rounded mt-4"></div>
                             </div>
                         </CardContent>
                     </Card>
@@ -203,13 +204,13 @@ export function RoutineList({
     if (routines.length === 0) {
         return (
             <div className="text-center py-12">
-                <div className="text-gray-400 mb-4">
-                    <Play className="h-12 w-12 mx-auto" />
+                <div className="h-16 w-16 bg-gradient-to-br from-slate-100 to-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Play className="h-8 w-8 text-slate-600" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-700 mb-2">
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
                     No routines found
                 </h3>
-                <p className="text-gray-500">
+                <p className="text-gray-600">
                     Create your first routine to get started with structured workouts
                 </p>
             </div>

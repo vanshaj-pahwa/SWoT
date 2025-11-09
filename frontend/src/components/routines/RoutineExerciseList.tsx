@@ -67,12 +67,10 @@ function ExerciseItem({
   }
 
   return (
-    <Card 
-      className={`transition-all duration-200 ${
-        isDragging ? 'opacity-50 scale-95' : ''
-      } ${
-        dragOverIndex === index ? 'border-blue-300 bg-blue-50' : ''
-      }`}
+    <Card
+      className={`border-0 bg-white/80 backdrop-blur shadow-lg transition-all duration-200 ${isDragging ? 'opacity-50 scale-95' : ''
+        } ${dragOverIndex === index ? 'border-2 border-blue-300 bg-slate-50' : ''
+        }`}
       draggable
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
@@ -81,7 +79,7 @@ function ExerciseItem({
       <CardContent className="p-4">
         <div className="flex items-center gap-3">
           {/* Drag Handle */}
-          <div className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600">
+          <div className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-slate-600">
             <GripVertical className="h-5 w-5" />
           </div>
 
@@ -158,10 +156,14 @@ function ExerciseItem({
 
                 {/* Action Buttons */}
                 <div className="flex gap-2">
-                  <Button size="sm" onClick={handleSave}>
+                  <Button
+                    size="sm"
+                    onClick={handleSave}
+                    className="bg-gradient-to-r from-slate-500 to-blue-600 hover:from-slate-600 hover:to-blue-700 text-white rounded-xl"
+                  >
                     Save
                   </Button>
-                  <Button size="sm" variant="outline" onClick={handleCancel}>
+                  <Button size="sm" variant="outline" onClick={handleCancel} className="rounded-xl">
                     Cancel
                   </Button>
                 </div>
@@ -178,6 +180,7 @@ function ExerciseItem({
                       size="sm"
                       variant="ghost"
                       onClick={() => setIsEditing(true)}
+                      className="hover:bg-slate-50 text-gray-600 hover:text-slate-700"
                     >
                       <Edit3 className="h-4 w-4" />
                     </Button>

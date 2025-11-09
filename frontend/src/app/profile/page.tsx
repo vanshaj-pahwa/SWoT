@@ -1,9 +1,15 @@
+'use client'
+
 import { ProfileForm } from '@/components/auth/ProfileForm'
+import { DashboardLayout } from '@/components/shared/DashboardLayout'
 
 export default function ProfilePage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <ProfileForm />
-    </div>
+    <DashboardLayout>
+      <div className="max-w-3xl mx-auto">
+        <h1 className="text-3xl font-bold text-gray-900 mb-6">Profile Settings</h1>
+        <ProfileForm />
+      </div>
+    </DashboardLayout>
   )
 }

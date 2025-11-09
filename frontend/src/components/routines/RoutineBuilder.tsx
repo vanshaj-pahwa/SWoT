@@ -140,6 +140,7 @@ export function RoutineBuilder({ routine, onSave, onCancel }: RoutineBuilderProp
                     <Button
                         variant="outline"
                         onClick={() => setShowExerciseSelector(false)}
+                        className="rounded-xl"
                     >
                         <ArrowLeft className="h-4 w-4 mr-2" />
                         Back to Routine
@@ -159,18 +160,19 @@ export function RoutineBuilder({ routine, onSave, onCancel }: RoutineBuilderProp
         <div className="space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold">
+                <h2 className="text-2xl font-bold text-gray-900">
                     {routine ? 'Edit Routine' : 'Create New Routine'}
                 </h2>
                 <div className="flex gap-2">
                     {onCancel && (
-                        <Button variant="outline" onClick={onCancel}>
+                        <Button variant="outline" onClick={onCancel} className="rounded-xl">
                             Cancel
                         </Button>
                     )}
                     <Button
                         onClick={handleSave}
                         disabled={saving || !currentRoutine?.name}
+                        className="bg-gradient-to-r from-slate-500 to-blue-600 hover:from-slate-600 hover:to-blue-700 text-white rounded-xl"
                     >
                         <Save className="h-4 w-4 mr-2" />
                         {saving ? 'Saving...' : 'Save Routine'}
@@ -180,7 +182,7 @@ export function RoutineBuilder({ routine, onSave, onCancel }: RoutineBuilderProp
 
             {/* Error Display */}
             {error && (
-                <Card className="border-red-200 bg-red-50">
+                <Card className="border-0 bg-red-50 shadow-lg">
                     <CardContent className="p-4">
                         <p className="text-red-600">{error}</p>
                     </CardContent>
@@ -188,9 +190,9 @@ export function RoutineBuilder({ routine, onSave, onCancel }: RoutineBuilderProp
             )}
 
             {/* Routine Details Form */}
-            <Card>
+            <Card className="border-0 bg-white/80 backdrop-blur shadow-lg">
                 <CardHeader>
-                    <CardTitle>Routine Details</CardTitle>
+                    <CardTitle className="text-gray-900">Routine Details</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <Form {...form}>
@@ -234,13 +236,14 @@ export function RoutineBuilder({ routine, onSave, onCancel }: RoutineBuilderProp
             </Card>
 
             {/* Exercises Section */}
-            <Card>
+            <Card className="border-0 bg-white/80 backdrop-blur shadow-lg">
                 <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
+                    <CardTitle className="flex items-center justify-between text-gray-900">
                         <span>Exercises ({currentRoutine?.exercises.length || 0})</span>
                         <Button
                             onClick={() => setShowExerciseSelector(true)}
                             size="sm"
+                            className="bg-gradient-to-r from-slate-500 to-blue-600 hover:from-slate-600 hover:to-blue-700 text-white rounded-xl"
                         >
                             <Plus className="h-4 w-4 mr-2" />
                             Add Exercise
@@ -250,16 +253,19 @@ export function RoutineBuilder({ routine, onSave, onCancel }: RoutineBuilderProp
                 <CardContent>
                     {!currentRoutine || currentRoutine.exercises.length === 0 ? (
                         <div className="text-center py-12">
-                            <div className="text-gray-400 mb-4">
-                                <Plus className="h-12 w-12 mx-auto" />
+                            <div className="h-16 w-16 bg-gradient-to-br from-slate-100 to-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <Plus className="h-8 w-8 text-slate-600" />
                             </div>
-                            <h3 className="text-lg font-medium text-gray-700 mb-2">
+                            <h3 className="text-lg font-medium text-gray-900 mb-2">
                                 No exercises added yet
                             </h3>
-                            <p className="text-gray-500 mb-4">
+                            <p className="text-gray-600 mb-4">
                                 Add exercises to build your routine
                             </p>
-                            <Button onClick={() => setShowExerciseSelector(true)}>
+                            <Button 
+                                onClick={() => setShowExerciseSelector(true)}
+                                className="bg-gradient-to-r from-slate-500 to-blue-600 hover:from-slate-600 hover:to-blue-700 text-white rounded-xl"
+                            >
                                 <Plus className="h-4 w-4 mr-2" />
                                 Add First Exercise
                             </Button>
